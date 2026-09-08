@@ -1,18 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Shield, RefreshCw, Database, Chrome, Check, Power } from "lucide-react";
+import { Shield, RefreshCw, Database, Chrome, Check, Power, HardDrive, FolderOpen } from "lucide-react";
+
 interface Props {
   isExtensionConnected: boolean;
   onRefreshHealth: () => void;
+  onOpenBackupModal?: () => void;
 }
 
-export default function SettingsView({ isExtensionConnected, onRefreshHealth }: Props) {
+export default function SettingsView({ isExtensionConnected, onRefreshHealth, onOpenBackupModal }: Props) {
   const [browserPref, setBrowserPref] = useState("Google Chrome");
   const [savedNotice, setSavedNotice] = useState(false);
 
+  useEffect(() => {
+    const saved = localStorage.getItem("workspace_hub_browser_pref");
+    if (saved) {
+      setBrowserPref(saved);
+    }
+  }, []);
+
   const handleSaveSettings = () => {
+    localStorage.setItem("workspace_hub_browser_pref", browserPref);
     setSavedNotice(true);
     setTimeout(() => setSavedNotice(false), 2000);
+  };
+
+  const handleOpenDb = async () => {
+    try {
+      await invoke("open_database_folder");
+    } catch (e) {
+      alert("Gagal membuka folder database: " + e);
+    }
   };
 
   const handleLaunchChrome = async () => {
@@ -101,6 +119,42 @@ export default function SettingsView({ isExtensionConnected, onRefreshHealth }: 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <Database size={16} color="#6366F1" />
             <span>Database Lokal: <code>workspace_hub.db</code> (SQLite)</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Backup & Portability (Pindah PC) */}
+      <div className="workspace-card">
+        <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
+          <HardDrive size={20} color="#6366F1" />
+          <span>Pencadangan & Migrasi Komputer (Backup & Portability)</span>
+        </h3>
+
+        <div style={{ fontSize: "0.9rem", color: "#94A3B8", lineHeight: 1.6, display: "flex", flexDirection: "column", gap: "14px" }}>
+          <p style={{ margin: 0 }}>
+            Pindahkan seluruh data yang telah Anda atur (workspace, tab, checklist shift SOP, dan catatan) ke komputer baru dengan mudah tanpa harus membangun dari nol.
+          </p>
+
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {onOpenBackupModal && (
+              <button
+                className="btn-primary"
+                style={{ width: "auto" }}
+                onClick={onOpenBackupModal}
+              >
+                <HardDrive size={16} />
+                <span>Buka Pusat Cadangan & Migrasi PC</span>
+              </button>
+            )}
+
+            <button
+              className="btn-secondary"
+              style={{ width: "auto" }}
+              onClick={handleOpenDb}
+            >
+              <FolderOpen size={16} />
+              <span>Buka Folder SQLite di Explorer</span>
+            </button>
           </div>
         </div>
       </div>

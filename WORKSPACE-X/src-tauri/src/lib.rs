@@ -1,7 +1,10 @@
 mod db;
 mod ws_server;
 
-use db::{Database, Workspace, WorkspaceGroup, WorkspaceTab};
+use db::{
+    ActiveSessionInfo, Database, FullBackupData, Workspace, WorkspaceGroup,
+    WorkspaceTab,
+};
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::Ordering;
 use std::sync::Mutex;
@@ -191,12 +194,19 @@ fn launch_workspace(
     });
 
     app_state.ws_state.send_message(&msg.to_string())?;
+    
+    // Persist active session in SQLite
+    app_state.db.start_session(&workspace_id).map_err(|e| e.to_string())?;
+    
     Ok(())
 }
 
 #[tauri::command]
 fn end_workspace_session(state: tauri::State<'_, Mutex<AppState>>) -> Result<(), String> {
     let app_state = state.lock().map_err(|e| e.to_string())?;
+
+    // Mark session as ended in SQLite
+    app_state.db.end_active_session().map_err(|e| e.to_string())?;
 
     let msg = serde_json::json!({
         "id": uuid::Uuid::new_v4().to_string(),
@@ -208,6 +218,14 @@ fn end_workspace_session(state: tauri::State<'_, Mutex<AppState>>) -> Result<(),
 
     app_state.ws_state.send_message(&msg.to_string())?;
     Ok(())
+}
+
+#[tauri::command]
+fn get_active_session(
+    state: tauri::State<'_, Mutex<AppState>>,
+) -> Result<Option<ActiveSessionInfo>, String> {
+    let app_state = state.lock().map_err(|e| e.to_string())?;
+    app_state.db.get_active_session().map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -314,6 +332,57 @@ fn import_workspace_json(
 }
 
 #[tauri::command]
+fn export_full_backup(state: tauri::State<'_, Mutex<AppState>>) -> Result<FullBackupData, String> {
+    let app_state = state.lock().map_err(|e| e.to_string())?;
+    app_state.db.export_full_database().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn import_full_backup(
+    backup_data: FullBackupData,
+    mode: String,
+    state: tauri::State<'_, Mutex<AppState>>,
+) -> Result<(), String> {
+    let app_state = state.lock().map_err(|e| e.to_string())?;
+    app_state
+        .db
+        .import_full_database(backup_data, &mode)
+        .map_err(|e| e.to_string())
+}
+
+fn get_database_dir() -> std::path::PathBuf {
+    let portable_data = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|dir| dir.join("data")));
+
+    let db_dir = if let Some(p) = portable_data.filter(|p| p.exists()) {
+        p
+    } else {
+        std::env::var("APPDATA")
+            .map(|appdata| std::path::PathBuf::from(appdata).join("WorkspaceHub"))
+            .unwrap_or_else(|_| std::path::PathBuf::from("."))
+    };
+    std::fs::create_dir_all(&db_dir).ok();
+    db_dir
+}
+
+#[tauri::command]
+fn open_database_folder() -> Result<String, String> {
+    let db_dir = get_database_dir();
+    let path_str = db_dir.to_string_lossy().to_string();
+
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .arg(&path_str)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+
+    Ok(path_str)
+}
+
+#[tauri::command]
 fn get_extension_status(state: tauri::State<'_, Mutex<AppState>>) -> Result<bool, String> {
     let app_state = state.lock().map_err(|e| e.to_string())?;
     Ok(app_state.ws_state.is_connected.load(Ordering::SeqCst) > 0)
@@ -323,13 +392,24 @@ fn get_extension_status(state: tauri::State<'_, Mutex<AppState>>) -> Result<bool
 fn launch_browser_bridge(app_handle: tauri::AppHandle) -> Result<String, String> {
     use tauri::Manager;
     let resource_dir = app_handle.path().resource_dir().map_err(|e| e.to_string())?;
-    
-    // Tauri bundles "../extension" into "_up_/extension"
-    let mut ext_path = resource_dir.join("_up_").join("extension");
-    if !ext_path.exists() {
-        // Fallback for dev mode
-        ext_path = std::env::current_dir().unwrap_or_default().join("extension");
-    }
+
+    // Check portable extension directory next to executable first
+    let portable_ext = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|dir| dir.join("extension")));
+
+    let ext_path = if let Some(p) = portable_ext.filter(|p| p.exists()) {
+        p
+    } else {
+        // Tauri bundles "../extension" into "_up_/extension"
+        let bundled = resource_dir.join("_up_").join("extension");
+        if bundled.exists() {
+            bundled
+        } else {
+            // Fallback for dev mode
+            std::env::current_dir().unwrap_or_default().join("extension")
+        }
+    };
     
     let mut path_str = ext_path.display().to_string();
     if path_str.starts_with("\\\\?\\") {
@@ -353,11 +433,7 @@ fn launch_browser_bridge(app_handle: tauri::AppHandle) -> Result<String, String>
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let db_dir = std::env::var("APPDATA")
-        .map(|appdata| std::path::PathBuf::from(appdata).join("WorkspaceHub"))
-        .unwrap_or_else(|_| std::path::PathBuf::from("."));
-    std::fs::create_dir_all(&db_dir).ok();
-
+    let db_dir = get_database_dir();
     let db_path_buf = db_dir.join("workspace_hub.db");
     let db_path = db_path_buf.to_string_lossy();
 
@@ -391,9 +467,13 @@ pub fn run() {
             fetch_live_browser_state,
             export_workspace_json,
             import_workspace_json,
+            export_full_backup,
+            import_full_backup,
+            open_database_folder,
             get_extension_status,
             launch_browser_bridge,
-            end_workspace_session
+            end_workspace_session,
+            get_active_session
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

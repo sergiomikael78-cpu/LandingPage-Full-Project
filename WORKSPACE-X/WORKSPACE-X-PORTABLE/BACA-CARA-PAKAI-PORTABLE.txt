@@ -1,0 +1,44 @@
+=======================================================================
+           WORKSPACE-X PORTABLE EDITION - PANDUAN PENGGUNAAN
+=======================================================================
+
+Selamat datang di WORKSPACE-X Portable Edition!
+Paket ini 100% PORTABLE & MANDIRI:
+- TIDAK PERLU install Node.js
+- TIDAK PERLU install Rust Compiler
+- TIDAK PERLU install Visual Studio C++ Build Tools
+- TIDAK PERLU login ke GitHub
+
+-----------------------------------------------------------------------
+PANDUAN MEMULAI DI KOMPUTER / PC BARU (HANYA 2 LANGKAH):
+-----------------------------------------------------------------------
+
+LANGKAH 1: HUBUNGKAN EKSTENSI BROWSER (CUKUP 1 KALI SAJA)
+1. Klik 2x file "1-KLIK-PASANG-EKSTENSI.bat".
+2. Alamat folder ekstensi akan otomatis disalin ke Clipboard komputer Anda.
+3. Halaman extensions di browser (Chrome / Opera) akan langsung terbuka.
+4. Di pojok kanan atas browser: Aktifkan "Developer mode".
+5. Klik tombol "Load unpacked" (Muat yang belum dibongkar).
+6. Tekan tombol Ctrl + V pada keyboard Anda untuk menempelkan alamat folder, lalu klik "Select Folder".
+7. Selesai! Ekstensi Workspace Hub Bridge sudah terpasang.
+
+LANGKAH 2: JALANKAN APLIKASI
+1. Klik 2x file "1-KLIK-JALANKAN.bat" (atau langsung file "Workspace-Hub.exe").
+2. Aplikasi WORKSPACE-X akan langsung terbuka seketika dan siap digunakan!
+
+-----------------------------------------------------------------------
+FITUR LENGKAP YANG SUDAH AKTIF DI VERSI INI:
+-----------------------------------------------------------------------
+- Shift Control Center: Live timer durasi bertugas & pengingat istirahat mata berkala 20 menit.
+- Buku Catatan Operan Shift (Handover Notes): Memo untuk shift berikutnya + tombol 1-klik salin format.
+- SOP Shift Checklist: Prosedur pra-shift & pasca-shift.
+- Template Hub: Preset workspace siap pakai (CS Night Shift, Admin Finance, Developer, Marketing).
+- Multi-Shift Safe: Fitur "END WORK" yang otomatis menutup seluruh tab kerja dan mengarahkan logout Google resmi.
+
+-----------------------------------------------------------------------
+PORTABILITAS DATA (DATABASE LOKAL):
+-----------------------------------------------------------------------
+Jika Anda membawa folder ini di dalam Flashdisk atau Google Drive, seluruh workspace,
+catatan operan, dan SOP checklist Anda akan otomatis tersimpan di folder "data/"
+sehingga data Anda selalu terbawa ke mana pun Anda berpindah PC.
+=======================================================================

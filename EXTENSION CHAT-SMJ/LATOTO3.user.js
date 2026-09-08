@@ -117,8 +117,20 @@
     };
 
     const manuallyRepliedIds = new Map(); // chatId -> timestamp (untuk cleanup otomatis)
+    let pendingAutoJumpChatId = null; // Target chat darurat untuk antrean auto-jump setelah Enter (Opsi 1)
+    const snoozedChatsMap = new Map(); // chatId -> timestamp batas waktu snooze (Opsi 3)
+    const SNOOZE_DURATION_MS = 30000; // Durasi tunda 30 detik
 
-    // --- FITUR BARU: Deteksi Kirim Pesan untuk Reset Instan ---
+    const focusMessageInput = () => {
+        try {
+            const inputEl = document.querySelector('[data-testid="message-input"], [contenteditable="true"], textarea');
+            if (inputEl) {
+                inputEl.focus();
+            }
+        } catch (e) {}
+    };
+
+    // --- FITUR BARU: Deteksi Kirim Pesan untuk Reset Instan & Auto-Jump ---
     const handleManualReply = () => {
         const activeId = getActiveChatId();
         if (activeId) {
@@ -140,6 +152,22 @@
                 removeWarningBadge(item);
             }
             updateLiveToastIndices(); // Tutup toast segera
+        }
+
+        // --- INOVASI: Eksekusi Antrean Auto-Jump jika Opsi 1 aktif ---
+        if (pendingAutoJumpChatId) {
+            const jumpTarget = pendingAutoJumpChatId;
+            pendingAutoJumpChatId = null;
+
+            setTimeout(() => {
+                const targetItem = findItemByChatId(jumpTarget);
+                if (targetItem) {
+                    console.log(`🚀 [SLA Auto-Jump] Pesan terkirim! Mengalihkan ke chat darurat: ${jumpTarget}`);
+                    targetItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetItem.click();
+                    setTimeout(focusMessageInput, 150);
+                }
+            }, 180);
         }
     };
 
@@ -327,6 +355,50 @@
         playDefuseSound();
     };
 
+    // ====== Controller 3 Opsi Aksi Peringatan SLA 2m30s (Dual Mode) ======
+    const executeActionOption1 = (chatId) => {
+        if (!chatId) {
+            closeAlarmModal(true);
+            return;
+        }
+        pendingAutoJumpChatId = chatId;
+        closeAlarmModal(true);
+
+        const item = findItemByChatId(chatId);
+        const allItems = Array.from(document.querySelectorAll('.chat-item'));
+        const idx = item ? (allItems.indexOf(item) + 1) : '?';
+        showToast(`⏳ Antrean Aktif: Otomatis lompat ke Chat #${idx} setelah Anda tekan Enter`, '#00c6ff', chatId, 4000);
+
+        setTimeout(focusMessageInput, 80);
+    };
+
+    const executeActionOption2 = (chatId) => {
+        pendingAutoJumpChatId = null;
+        closeAlarmModal(true);
+        if (!chatId) return;
+
+        const item = findItemByChatId(chatId);
+        if (item) {
+            item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            item.click();
+            setTimeout(focusMessageInput, 150);
+        }
+    };
+
+    const executeActionOption3 = (chatId) => {
+        pendingAutoJumpChatId = null;
+        closeAlarmModal(true);
+        if (!chatId) return;
+
+        snoozedChatsMap.set(chatId, Date.now() + SNOOZE_DURATION_MS);
+        const item = findItemByChatId(chatId);
+        if (item) {
+            item.dataset.alarm2m30sShown = 'snoozed';
+        }
+        showToast('⏳ SLA Ditunda 30 Detik (Snooze Aktif)', '#ffcc00', chatId, 3000);
+        setTimeout(focusMessageInput, 80);
+    };
+
     // ====== Center Modal Alert (2 Menit 30 Detik) ======
     const getCustomerNameFromItem = (item) => {
         if (!item) return 'Pelanggan';
@@ -365,33 +437,50 @@
                         </div>
                     </div>
                     <div class="sla-modal-actions">
-                        <button type="button" class="sla-btn sla-btn-jump">🚀 Jump to Chat</button>
-                        <button type="button" class="sla-btn sla-btn-cancel">✕ Cancel</button>
+                        <button type="button" class="sla-btn sla-btn-option1" data-action="1" title="Selesaikan chat saat ini, otomatis lompat setelah Enter">
+                            <span class="sla-key-badge">1</span>
+                            <div class="sla-btn-label">
+                                <span class="sla-btn-title">Balas Ini Dulu</span>
+                                <span class="sla-btn-desc">Lompat saat Enter</span>
+                            </div>
+                        </button>
+                        <button type="button" class="sla-btn sla-btn-option2" data-action="2" title="Langsung beralih ke chat darurat sekarang">
+                            <span class="sla-key-badge">2</span>
+                            <div class="sla-btn-label">
+                                <span class="sla-btn-title">Lompat Sekarang</span>
+                                <span class="sla-btn-desc">Buka chat darurat</span>
+                            </div>
+                        </button>
+                        <button type="button" class="sla-btn sla-btn-option3" data-action="3" title="Tunda peringatan selama 30 detik">
+                            <span class="sla-key-badge">3</span>
+                            <div class="sla-btn-label">
+                                <span class="sla-btn-title">Tunda 30 Detik</span>
+                                <span class="sla-btn-desc">Snooze & tetap di sini</span>
+                            </div>
+                        </button>
                     </div>
-                    <div class="sla-modal-hint">Tekan <b>Ctrl + X</b> untuk matikan alarm</div>
+                    <div class="sla-modal-hint">Klik tombol di atas atau tekan tombol <b>1</b>, <b>2</b>, <b>3</b> di keyboard • Batal: <b>Ctrl + X</b></div>
                 </div>
             `;
             document.body.appendChild(modal);
 
-            const jumpBtn = modal.querySelector('.sla-btn-jump');
-            const cancelBtn = modal.querySelector('.sla-btn-cancel');
+            const opt1Btn = modal.querySelector('.sla-btn-option1');
+            const opt2Btn = modal.querySelector('.sla-btn-option2');
+            const opt3Btn = modal.querySelector('.sla-btn-option3');
 
-            jumpBtn.addEventListener('click', (e) => {
+            opt1Btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const activeModalChatId = modal.dataset.chatId;
-                if (activeModalChatId) {
-                    const item = findItemByChatId(activeModalChatId);
-                    if (item) {
-                        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        item.click();
-                    }
-                }
-                closeAlarmModal(true); // dengan suara defuse
+                executeActionOption1(modal.dataset.chatId);
             });
 
-            cancelBtn.addEventListener('click', (e) => {
+            opt2Btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                closeAlarmModal(true); // dengan suara defuse
+                executeActionOption2(modal.dataset.chatId);
+            });
+
+            opt3Btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                executeActionOption3(modal.dataset.chatId);
             });
         }
         return modal;
@@ -746,7 +835,16 @@
 
         // --- POP-UP ALARM 2 MENIT 30 DETIK (CENTER MODAL + LOOPING SOUND) ---
         if (elapsed >= ALARM_2M30S_DELAY_MS) {
-            if (!isActive && !item.dataset.alarm2m30sShown) {
+            const snoozedUntil = snoozedChatsMap.get(chatId) || 0;
+            const isSnoozed = Date.now() < snoozedUntil;
+
+            // Bersihkan flag jika masa snooze telah habis agar bisa dievaluasi kembali
+            if (item.dataset.alarm2m30sShown === 'snoozed' && !isSnoozed) {
+                delete item.dataset.alarm2m30sShown;
+                snoozedChatsMap.delete(chatId);
+            }
+
+            if (!isActive && !item.dataset.alarm2m30sShown && !isSnoozed) {
                 item.dataset.alarm2m30sShown = '1';
                 showAlarmCenterModal(chatId);
             }
@@ -1320,9 +1418,9 @@ animation: rainbowPulse 3s linear infinite;
     border: 2px solid #ff3b30 !important;
     border-radius: 18px !important;
     box-shadow: 0 0 45px rgba(255, 59, 48, 0.65), 0 20px 40px rgba(0, 0, 0, 0.85) !important;
-    width: 440px !important;
-    max-width: 92vw !important;
-    padding: 24px 28px !important;
+    width: 500px !important;
+    max-width: 94vw !important;
+    padding: 24px 24px !important;
     color: #ffffff !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     transform: scale(0.9);
@@ -1410,55 +1508,110 @@ animation: rainbowPulse 3s linear infinite;
 }
 
 .sla-modal-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 18px;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+    margin-top: 18px !important;
 }
 
 .sla-btn {
-    flex: 1;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    padding: 10px 8px !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    border: none !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    text-align: center !important;
+    user-select: none !important;
 }
 
-.sla-btn-jump {
-    background: #007aff !important;
+.sla-key-badge {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    padding: 2px 7px !important;
+    border-radius: 6px !important;
+    line-height: 1 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.sla-btn-label {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2px !important;
+}
+
+.sla-btn-title {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+.sla-btn-desc {
+    font-size: 9.5px !important;
+    opacity: 0.8 !important;
+    line-height: 1.1 !important;
+}
+
+/* Opsi 1: Balas Ini Dulu (Cyan Glow) */
+.sla-btn-option1 {
+    background: linear-gradient(135deg, rgba(0, 198, 255, 0.15), rgba(0, 114, 255, 0.25)) !important;
+    border: 1.5px solid #00c6ff !important;
+    color: #e0f7ff !important;
+}
+.sla-btn-option1 .sla-key-badge {
+    background: #00c6ff !important;
+    color: #002244 !important;
+}
+.sla-btn-option1:hover {
+    background: linear-gradient(135deg, rgba(0, 198, 255, 0.3), rgba(0, 114, 255, 0.45)) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0, 198, 255, 0.45) !important;
+}
+
+/* Opsi 2: Lompat Sekarang (Blue Primary Glow) */
+.sla-btn-option2 {
+    background: linear-gradient(135deg, #007aff, #0056b3) !important;
+    border: 1.5px solid #3395ff !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4) !important;
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.35) !important;
+}
+.sla-btn-option2 .sla-key-badge {
+    background: #ffffff !important;
+    color: #0056b3 !important;
+}
+.sla-btn-option2:hover {
+    background: linear-gradient(135deg, #0062cc, #004494) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 22px rgba(0, 122, 255, 0.6) !important;
 }
 
-.sla-btn-jump:hover {
-    background: #0062cc !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 122, 255, 0.6) !important;
+/* Opsi 3: Tunda 30 Detik (Amber Glass) */
+.sla-btn-option3 {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1.5px solid rgba(255, 204, 0, 0.4) !important;
+    color: #ffea79 !important;
 }
-
-.sla-btn-cancel {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: #e0e0e0 !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+.sla-btn-option3 .sla-key-badge {
+    background: rgba(255, 204, 0, 0.2) !important;
+    border: 1px solid #ffcc00 !important;
+    color: #ffcc00 !important;
 }
-
-.sla-btn-cancel:hover {
-    background: rgba(255, 59, 48, 0.2) !important;
-    border-color: #ff3b30 !important;
-    color: #ff3b30 !important;
-    transform: translateY(-2px);
+.sla-btn-option3:hover {
+    background: rgba(255, 204, 0, 0.15) !important;
+    border-color: #ffcc00 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(255, 204, 0, 0.3) !important;
 }
 
 .sla-modal-hint {
     text-align: center;
     font-size: 11px;
-    color: #707080;
+    color: #888899;
     margin-top: 14px;
 }
 
@@ -1493,13 +1646,49 @@ animation: rainbowPulse 3s linear infinite;
     };
 
     // =========================
-    // Global keybinds (Ctrl+X / Alt+. / Alt+/)
+    // Global keybinds (1, 2, 3 / Ctrl+X / Alt+. / Alt+/)
     // =========================
     document.addEventListener('keydown', (e) => {
+        const modal = document.querySelector('.sla-center-modal-overlay.active');
+        if (modal) {
+            const activeModalChatId = modal.dataset.chatId;
+
+            // Shortcut Angka 1 / Numpad 1: Balas Ini Dulu & Antre Lompat
+            if (e.key === '1' || e.code === 'Numpad1') {
+                e.preventDefault();
+                e.stopPropagation();
+                executeActionOption1(activeModalChatId);
+                return;
+            }
+
+            // Shortcut Angka 2 / Numpad 2: Lompat Langsung Sekarang
+            if (e.key === '2' || e.code === 'Numpad2') {
+                e.preventDefault();
+                e.stopPropagation();
+                executeActionOption2(activeModalChatId);
+                return;
+            }
+
+            // Shortcut Angka 3 / Numpad 3: Tunda 30 Detik (Snooze)
+            if (e.key === '3' || e.code === 'Numpad3') {
+                e.preventDefault();
+                e.stopPropagation();
+                executeActionOption3(activeModalChatId);
+                return;
+            }
+
+            // Shortcut Ctrl+X atau Escape: Tutup Alarm & Snooze
+            if (((e.ctrlKey || e.metaKey) && (e.key === 'x' || e.key === 'X' || e.code === 'KeyX')) || e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                executeActionOption3(activeModalChatId);
+                return;
+            }
+        }
+
         // --- Shortcut Ctrl+X: Tutup Alarm Pop-up & Putar Suara Defuse ---
         if ((e.ctrlKey || e.metaKey) && (e.key === 'x' || e.key === 'X' || e.code === 'KeyX')) {
-            const modal = document.querySelector('.sla-center-modal-overlay.active');
-            if (modal || (currentAlarmAudio && !currentAlarmAudio.paused)) {
+            if (currentAlarmAudio && !currentAlarmAudio.paused) {
                 e.preventDefault();
                 e.stopPropagation();
                 closeAlarmModal(true);

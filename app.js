@@ -8,26 +8,31 @@ const MODULES_DATA = [
     category: "desktop",
     categoryLabel: "Desktop App",
     name: "WORKSPACE-X",
-    badge: "Tauri v2 + React 19",
+    badge: "Tauri v2 Native • 100% Siap Pakai",
     icon: "🖥️",
     tagline: "Local-First Workspace & Shift Browser Automation Hub",
-    description: "Aplikasi desktop eksekutif untuk otomatisasi pemulihan lingkungan kerja browser (Opera/Chrome). Membuka puluhan tab kerja dan tab groups dalam sekali klik (START WORK) dan membersihkannya kembali (END WORK) tanpa pernah menyimpan credential sensitif.",
+    description: "Aplikasi desktop eksekutif berbasis Tauri v2 untuk otomatisasi lingkungan kerja browser (Opera/Chrome). Memulihkan puluhan tab kerja dan grup tab dalam 1-klik (START WORK), dilengkapi Shift Control Center (Live Timer & Eye Break 20m), Buku Catatan Operan Shift, dan SOP Checklist, serta penutupan sesi bersih (END WORK) tanpa pernah menyimpan credential/cookie akun.",
     features: [
-      "One-Click Workspace Restoration & Tab Groups",
-      "Local-First Architecture dengan SQLite (Zero Cloud Leak)",
-      "Multi-Shift Safe: Logout Google aman untuk PC bersama",
-      "Native Desktop Performance didukung Rust & Tauri v2"
+      "Dual-Mode Distribusi: Installer Windows (.exe, ~2.9 MB) & Portable Suite (.zip, ~3.7 MB)",
+      "Bebas Compiler: Tanpa perlu install Node.js, Rustup, ataupun Visual Studio C++",
+      "One-Click Tab Restoration & Tab Groups Sync via Chrome/Opera Bridge",
+      "Shift Control Center: Live Timer Durasi Shift & Pengingat Eye Break 20 Menit",
+      "Buku Catatan Handover & SOP Checklist: Dokumentasi operan shift terintegrasi",
+      "Multi-Shift Safe: 1-Klik END WORK menutup tab dan logout Google resmi",
+      "Local-First SQLite: Database lokal mandiri, aman dari kebocoran cloud"
     ],
-    fileCount: "17+ Files & Directories",
+    fileCount: "Paket Mandiri Lengkap",
     keyFiles: [
-      { name: "PRD_Workspace_Hub.md", desc: "Single Source of Truth & Spesifikasi Lengkap" },
-      { name: "src/", desc: "Frontend React 19 + TypeScript + Tailwind" },
-      { name: "src-tauri/", desc: "Backend Rust Tauri Core & Native Invokers" },
-      { name: "extension/", desc: "Manifest V3 Browser Bridge Extension" },
-      { name: "vite.config.ts", desc: "Vite Bundler & HMR Configuration" }
+      { name: "Workspace-Hub-Setup.exe", desc: "Installer resmi Windows (Desktop & Start Menu shortcut, ~2.9 MB)" },
+      { name: "Workspace-Hub.exe", desc: "Aplikasi desktop native terkompilasi (mode portable, ~11.3 MB)" },
+      { name: "1-KLIK-PASANG-EKSTENSI.bat", desc: "Helper 1-klik salin path ke clipboard & buka halaman extensions" },
+      { name: "1-KLIK-JALANKAN.bat", desc: "Launcher instan portable tanpa instalasi" },
+      { name: "extension/", desc: "Manifest V3 Browser Bridge Extension untuk Opera & Chrome" },
+      { name: "data/", desc: "Penyimpanan database SQLite lokal portabel (workspace_hub.db)" }
     ],
     downloads: [
-      { name: "Download Source Code (.zip)", file: "WORKSPACE-X.zip", size: "Clean Package", isPrimary: true }
+      { name: "Download Windows Installer (.exe)", file: "Workspace-Hub-Setup.exe", size: "~2.9 MB (Setup Wizard)", isPrimary: true },
+      { name: "Download Portable Suite (.zip)", file: "WORKSPACE-X.zip", size: "~3.7 MB (Tanpa Install)", isPrimary: false }
     ],
     installTab: "tab-workspace"
   },

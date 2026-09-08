@@ -40,6 +40,31 @@ pub struct WorkspaceTab {
     pub metadata: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ActiveSessionInfo {
+    pub id: String,
+    pub workspace_id: String,
+    pub workspace_name: String,
+    pub started_at: String,
+    pub state: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FullBackupWorkspace {
+    pub workspace: Workspace,
+    pub groups: Vec<WorkspaceGroup>,
+    pub tabs: Vec<WorkspaceTab>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FullBackupData {
+    pub app: String,
+    pub version: String,
+    pub exported_at: String,
+    pub workspaces: Vec<FullBackupWorkspace>,
+    pub extra_data: Option<serde_json::Value>,
+}
+
 pub struct Database {
     pub conn_path: String,
 }
@@ -336,6 +361,205 @@ impl Database {
     pub fn delete_tab(&self, tab_id: &str) -> Result<()> {
         let conn = Connection::open(&self.conn_path)?;
         conn.execute("DELETE FROM workspace_tabs WHERE id = ?1", params![tab_id])?;
+        Ok(())
+    }
+
+    pub fn start_session(&self, workspace_id: &str) -> Result<ActiveSessionInfo> {
+        let conn = Connection::open(&self.conn_path)?;
+        let now = chrono::Utc::now().to_rfc3339();
+
+        // End any existing active session first
+        conn.execute(
+            "UPDATE sessions SET state = 'ended', ended_at = ?1 WHERE state = 'active'",
+            params![now],
+        )?;
+
+        let session_id = uuid::Uuid::new_v4().to_string();
+
+        conn.execute(
+            "INSERT INTO sessions (id, workspace_id, state, started_at) VALUES (?1, ?2, 'active', ?3)",
+            params![session_id, workspace_id, now],
+        )?;
+
+        // Update workspace last_used_at
+        conn.execute(
+            "UPDATE workspaces SET last_used_at = ?1 WHERE id = ?2",
+            params![now, workspace_id],
+        )?;
+
+        let mut stmt = conn.prepare("SELECT name FROM workspaces WHERE id = ?1")?;
+        let workspace_name: String = stmt.query_row(params![workspace_id], |row| row.get(0))?;
+
+        Ok(ActiveSessionInfo {
+            id: session_id,
+            workspace_id: workspace_id.to_string(),
+            workspace_name,
+            started_at: now,
+            state: "active".to_string(),
+        })
+    }
+
+    pub fn get_active_session(&self) -> Result<Option<ActiveSessionInfo>> {
+        let conn = Connection::open(&self.conn_path)?;
+        let mut stmt = conn.prepare(
+            "SELECT s.id, s.workspace_id, w.name, s.started_at, s.state
+             FROM sessions s
+             JOIN workspaces w ON s.workspace_id = w.id
+             WHERE s.state = 'active'
+             ORDER BY s.started_at DESC
+             LIMIT 1",
+        )?;
+
+        let mut rows = stmt.query([])?;
+        if let Some(row) = rows.next()? {
+            Ok(Some(ActiveSessionInfo {
+                id: row.get(0)?,
+                workspace_id: row.get(1)?,
+                workspace_name: row.get(2)?,
+                started_at: row.get(3)?,
+                state: row.get(4)?,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn end_active_session(&self) -> Result<()> {
+        let conn = Connection::open(&self.conn_path)?;
+        let now = chrono::Utc::now().to_rfc3339();
+        conn.execute(
+            "UPDATE sessions SET state = 'ended', ended_at = ?1 WHERE state = 'active'",
+            params![now],
+        )?;
+        Ok(())
+    }
+
+    pub fn export_full_database(&self) -> Result<FullBackupData> {
+        let workspaces = self.get_workspaces()?;
+        let mut full_workspaces = Vec::new();
+
+        for ws in workspaces {
+            let groups = self.get_groups_by_workspace(&ws.id)?;
+            let tabs = self.get_tabs_by_workspace(&ws.id)?;
+            full_workspaces.push(FullBackupWorkspace {
+                workspace: ws,
+                groups,
+                tabs,
+            });
+        }
+
+        Ok(FullBackupData {
+            app: "WORKSPACE-X".to_string(),
+            version: "2.0.0".to_string(),
+            exported_at: chrono::Utc::now().to_rfc3339(),
+            workspaces: full_workspaces,
+            extra_data: None,
+        })
+    }
+
+    pub fn import_full_database(&self, backup: FullBackupData, mode: &str) -> Result<()> {
+        let mut conn = Connection::open(&self.conn_path)?;
+        let tx = conn.transaction()?;
+
+        if mode == "replace" {
+            tx.execute("DELETE FROM workspace_tabs", [])?;
+            tx.execute("DELETE FROM workspace_groups", [])?;
+            tx.execute("DELETE FROM workspaces", [])?;
+            tx.execute("DELETE FROM sessions", [])?;
+        }
+
+        for item in backup.workspaces {
+            let ws = item.workspace;
+            let ws_id = if mode == "replace" {
+                ws.id
+            } else {
+                let exists: bool = tx
+                    .prepare("SELECT 1 FROM workspaces WHERE id = ?1 OR name = ?2")?
+                    .exists(params![ws.id, ws.name])?;
+                if exists {
+                    uuid::Uuid::new_v4().to_string()
+                } else {
+                    ws.id
+                }
+            };
+
+            let ws_name = if mode == "merge" {
+                let name_exists: bool = tx
+                    .prepare("SELECT 1 FROM workspaces WHERE name = ?1")?
+                    .exists(params![ws.name])?;
+                if name_exists {
+                    format!("{} (Imported)", ws.name)
+                } else {
+                    ws.name
+                }
+            } else {
+                ws.name
+            };
+
+            let now = chrono::Utc::now().to_rfc3339();
+
+            tx.execute(
+                "INSERT INTO workspaces (id, name, description, icon, color, behavior_mode, browser_preference, is_favorite, is_archived, position, created_at, updated_at, last_used_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
+                params![
+                    ws_id,
+                    ws_name,
+                    ws.description,
+                    ws.icon,
+                    ws.color.unwrap_or_else(|| "#6366F1".to_string()),
+                    ws.behavior_mode,
+                    ws.browser_preference,
+                    ws.is_favorite,
+                    ws.is_archived,
+                    ws.position,
+                    if ws.created_at.is_empty() { now.clone() } else { ws.created_at },
+                    now.clone(),
+                    ws.last_used_at,
+                ],
+            )?;
+
+            let mut group_id_map = std::collections::HashMap::new();
+
+            for group in item.groups {
+                let new_group_id = uuid::Uuid::new_v4().to_string();
+                group_id_map.insert(group.id, new_group_id.clone());
+
+                tx.execute(
+                    "INSERT INTO workspace_groups (id, workspace_id, name, color, position, collapsed_default)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    params![
+                        new_group_id,
+                        ws_id,
+                        group.name,
+                        group.color,
+                        group.position,
+                        group.collapsed_default,
+                    ],
+                )?;
+            }
+
+            for tab in item.tabs {
+                let new_tab_id = uuid::Uuid::new_v4().to_string();
+                let mapped_group_id = tab.group_id.as_ref().and_then(|gid| group_id_map.get(gid).cloned());
+
+                tx.execute(
+                    "INSERT INTO workspace_tabs (id, workspace_id, group_id, name, url, position, pinned, metadata)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                    params![
+                        new_tab_id,
+                        ws_id,
+                        mapped_group_id,
+                        tab.name,
+                        tab.url,
+                        tab.position,
+                        tab.pinned,
+                        tab.metadata,
+                    ],
+                )?;
+            }
+        }
+
+        tx.commit()?;
         Ok(())
     }
 }
