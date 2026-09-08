@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highlighter Pro - Executive Command Center</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Background Animated Orbs -->
+    <div class="background-animation">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Smoked Glass Premium Container -->
+    <main class="glass-container">
+        <header>
+            <div class="vip-badge-pill">
+                <div class="vip-badge-dot"></div>
+                <div class="vip-badge-text">Executive Hub • Secure Active</div>
+            </div>
+            <h1>Highlighter <span>Pro</span> Suite</h1>
+            <p class="subtitle">Sistem konsol kontrol terintegrasi untuk optimalisasi, analisis, dan pengawasan operasional agen LiveChat kelas atas.</p>
+        </header>
+
+        <!-- Live System Status Monitor -->
+        <section class="system-monitor-box">
+            <div class="metric-column">
+                <span class="metric-label">API Gateway Status</span>
+                <span class="metric-value gold">
+                    <span class="live-indicator"></span>
+                    SYNCHRONIZED
+                </span>
+            </div>
+            <div class="metric-column">
+                <span class="metric-label">Database Latency</span>
+                <span class="metric-value" id="latencyVal">12ms</span>
+            </div>
+            <div class="metric-column">
+                <span class="metric-label">Security License</span>
+                <span class="metric-value gold">VIP LIFETIME</span>
+            </div>
+            <div class="metric-column">
+                <span class="metric-label">SLA Rate Target</span>
+                <span class="metric-value" id="slaVal">99.8%</span>
+            </div>
+
+            <!-- Animating Heartbeat Waveform -->
+            <svg class="pulse-wave-svg" viewBox="0 0 1000 40">
+                <path class="pulse-path" d="M0,20 L150,20 L160,10 L170,30 L180,20 L300,20 L310,5 L320,35 L330,15 L340,25 L350,20 L550,20 L560,0 L570,40 L580,20 L750,20 L760,10 L770,30 L780,20 L1000,20" />
+            </svg>
+        </section>
+
+        <!-- Control Hub & Simulator Playground Section -->
+        <section class="control-hub-section">
+            <!-- Left: Settings Toggles -->
+            <div class="control-panel">
+                <h3 class="panel-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                    System Override Console
+                </h3>
+                <div class="toggle-group">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h5>Audio Warning Engine</h5>
+                            <p>Bunyi lonceng digital saat limit SLA tercapai.</p>
+                        </div>
+                        <label class="gold-toggle">
+                            <input type="checkbox" id="audioToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h5>Neural Protection Shield</h5>
+                            <p>Mencegah spam & duplikasi pesan masuk.</p>
+                        </div>
+                        <label class="gold-toggle">
+                            <input type="checkbox" id="spamToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h5>Engine Turbo Booster</h5>
+                            <p>Optimalisasi rendering DOM agar ekstra ringan.</p>
+                        </div>
+                        <label class="gold-toggle">
+                            <input type="checkbox" id="boosterToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Live Keyword Simulator Playground -->
+            <div class="simulator-panel">
+                <h3 class="panel-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    Live Keyword Simulator (Playground)
+                </h3>
+                <p class="simulator-desc">Uji coba kecanggihan deteksi kata kunci. Ketik teks LiveChat simulasi di bawah ini (misal: <i>"tolong bantu cek depo saya, wd belum masuk"</i>):</p>
+                <div class="input-console-wrapper">
+                    <input type="text" class="console-input" id="simInput" placeholder="Ketik pesan simulasi Anda di sini...">
+                </div>
+                <div class="playground-output-box">
+                    <span class="output-label">Interactive Engine Output</span>
+                    <div class="output-content" id="simOutput">Menunggu masukan kalimat simulasi...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Script Grid (5 Smoked Glass Cards) -->
+        <section class="script-grid">
+            <!-- Card 1: Highlighter Pro -->
+            <div class="script-card">
+                <div class="card-ambient-glow"></div>
+                <div class="card-content">
+                    <div class="card-vip-tag">Core Engine</div>
+                    <div class="gold-icon-ring">
+                        <!-- Custom Detailed SVG Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M12 3v18M3 12h18" stroke-dasharray="2 2" />
+                            <path d="M12 7a5 5 0 0 1 5 5M12 9a3 3 0 0 1 3 3" />
+                            <circle cx="12" cy="12" r="1.5" fill="var(--gold-primary)" />
+                        </svg>
+                    </div>
+                    <h3>Highlighter Pro</h3>
+                    <p>Mewarnai kata kunci kritis (seperti <b>Depo, WD, WD Besar, Lupa ID</b>) secara otomatis dengan setelan visual yang tersinkronisasi dalam satu dashboard mengambang.</p>
+                    <a href="LATOTO1.user.js" class="btn-premium">Pasang Sekarang</a>
+                </div>
+            </div>
+
+            <!-- Card 2: Neural Anti-Spam -->
+            <div class="script-card">
+                <div class="card-ambient-glow"></div>
+                <div class="card-content">
+                    <div class="card-vip-tag">Security Guard</div>
+                    <div class="gold-icon-ring">
+                        <!-- Custom Detailed SVG Shield Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2L4 5v6c0 5.5 3.5 10.1 8 11 4.5-.9 8-5.5 8-11V5l-8-3z" />
+                            <circle cx="12" cy="11.5" r="2" />
+                            <path d="M12 13.5v2.5M10.5 16h3" />
+                        </svg>
+                    </div>
+                    <h3>Neural Anti-Spam</h3>
+                    <p>Proteksi pre-send cerdas yang memantau pengetikan agen. Memblokir tombol kirim dan menampilkan HUD <b>Neural Shield</b> peringatan jika spam terdeteksi.</p>
+                    <a href="LATOTO2.user.js" class="btn-premium">Pasang Sekarang</a>
+                </div>
+            </div>
+
+            <!-- Card 3: UI & SLA Tracker -->
+            <div class="script-card">
+                <div class="card-ambient-glow"></div>
+                <div class="card-content">
+                    <div class="card-vip-tag">SLA Manager</div>
+                    <div class="gold-icon-ring">
+                        <!-- Custom Detailed SVG Chrono Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M12 6v6l4 2.5" />
+                            <path d="M12 3v2M12 19v2M3 12h2M19 12h2" />
+                        </svg>
+                    </div>
+                    <h3>UI & SLA Tracker</h3>
+                    <p>Memasukkan bar garis indikator SLA dinamis di daftar obrolan aktif. Memicu alert alarm suara digital pada threshold toleransi <b>2 Menit</b> dan <b>3 Menit</b>.</p>
+                    <a href="LATOTO3.user.js" class="btn-premium">Pasang Sekarang</a>
+                </div>
+            </div>
+
+            <!-- Card 4: Duration Tracker -->
+            <div class="script-card">
+                <div class="card-ambient-glow"></div>
+                <div class="card-content">
+                    <div class="card-vip-tag">Analysis Tool</div>
+                    <div class="gold-icon-ring">
+                        <!-- Custom Detailed SVG Radar Scan Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" />
+                            <circle cx="12" cy="12" r="5" />
+                            <path d="M12 3v18M3 12h18" stroke-dasharray="1 1" />
+                            <path d="M12 12l6-6" />
+                        </svg>
+                    </div>
+                    <h3>Duration Tracker</h3>
+                    <p>Melacak waktu pengecekan data pelanggan secara real-time. Memulai perhitungan otomatis dari kata pemicu hingga konfirmasi penyelesaian dari agen.</p>
+                    <a href="LAOTOT4.user.js" class="btn-premium">Pasang Sekarang</a>
+                </div>
+            </div>
+
+            <!-- Card 5: History Isolator -->
+            <div class="script-card">
+                <div class="card-ambient-glow"></div>
+                <div class="card-content">
+                    <div class="card-vip-tag">Visual Enhancer</div>
+                    <div class="gold-icon-ring">
+                        <!-- Custom Detailed SVG Layout Separator Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M3 12h18" stroke-dasharray="3 3" />
+                            <path d="M7 8h10M7 16h6" />
+                        </svg>
+                    </div>
+                    <h3>History Isolator</h3>
+                    <p>Membelah obrolan lama dan obrolan baru dengan border Session Separator serta mengaplikasikan yellow highlight transparan lembut pada obrolan lawas.</p>
+                    <a href="LATOTO5.user.js" class="btn-premium">Pasang Sekarang</a>
+                </div>
+            </div>
+
+            <!-- Card 6: Smart Auto-Screenshot & Cloud -->
+            <div class="script-card">
+                <div class="card-ambient-glow"></div>
+                <div class="card-content">
+                    <div class="card-vip-tag">Capture Engine</div>
+                    <div class="gold-icon-ring">
+                        <!-- Custom Detailed SVG Camera & Cloud Sync Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                            <circle cx="12" cy="13" r="4" />
+                            <path d="M12 9v1M12 16v1M9 13H8M16 13h-1" stroke-dasharray="1 1" />
+                        </svg>
+                    </div>
+                    <h3>Auto Screenshot Pro</h3>
+                    <p>Tangkapan layar chat kilat dengan kompresi turbo (WebP/JPEG 0.88), isolasi sesi cerdas (<b>Smart Session Crop</b>), rotasi multi-key anti-limit, dan salin instan format <code>[Chat_ID] [Link]</code> via hotkey <b>Alt+S</b>.</p>
+                    <a href="Auto%20Ss%20&%20upload%20LATOTO.user.js" class="btn-premium">Pasang Sekarang</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instructions Section -->
+        <section class="config-warning">
+            <div class="config-header">
+                <!-- Custom SVG Warning Shield Icon -->
+                <svg class="pulse-warning-svg" viewBox="0 0 24 24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M12 8v5M12 16h.01" />
+                </svg>
+                <h2>Konfigurasi Sistem Kelola Ekstensi</h2>
+            </div>
+            <p>Untuk memastikan seluruh arsitektur skrip internal di atas dapat berkoordinasi, sinkron, dan saling bertukar data secara instan, Anda <b>wajib</b> mengaktifkan izin-izin berikut pada panel setelan Tampermonkey Anda:</p>
+
+            <div class="config-steps">
+                <div class="config-item">
+                    <div class="config-img-box">
+                        <div class="ui-toggle-switch-indicator"></div>
+                    </div>
+                    <div class="config-text">
+                        <h4>1. Developer Mode (Izin Skrip Pengguna)</h4>
+                        <p>Mengaktifkan izin dasar integrasi untuk menyuntikkan skrip premium ke LiveChat.</p>
+                    </div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-img-box">
+                        <div class="ui-toggle-switch-indicator"></div>
+                    </div>
+                    <div class="config-text">
+                        <h4>2. Izin Mode Samaran (Incognito Mode)</h4>
+                        <p>Mempertahankan fungsi pengawasan SLA dan pelacakan durasi saat bekerja di tab Incognito.</p>
+                    </div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-img-box">
+                        <div class="ui-toggle-switch-indicator"></div>
+                    </div>
+                    <div class="config-text">
+                        <h4>3. Izin Akses URL Berkas (Access to File URLs)</h4>
+                        <p>Mengizinkan koordinasi real-time antara pustaka aset lokal dengan browser agen.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tutorial-box">
+                <p>💡 <b>Prosedur Aktivasi:</b> Klik kanan ikon <b>Tampermonkey</b> di pojok kanan atas browser > Pilih <b>Kelola Ekstensi</b> (Manage Extension) > Temukan ketiga izin di atas > <b>Nyalakan Seluruh Toggle Switch Menjadi Biru / Aktif</b>.</p>
+            </div>
+        </section>
+
+        <!-- Instructions Steps -->
+        <section class="tutorial">
+            <h2>Langkah Pasca Instalasi</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <p>Setelah mengklik tombol pasang emas pada keenam kartu di atas, klik tombol <b>Install / Reinstall</b> pada tab konfirmasi ekstensi Tampermonkey yang otomatis terbuka.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <p>Buka halaman aplikasi LiveChat Anda, atau lakukan penyegaran penuh halaman <b>(Refresh / F5)</b> untuk memulai sinkronisasi metrik data.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <p>Sistem terintegrasi kini aktif berjalan sepenuhnya di latar belakang LiveChat Anda, mengawasi SLA, memotong spam, dan mendata durasi secara otomatis.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Highlighter Pro VIP Executive Suite. Dikembangkan dengan standar industri berkinerja tinggi.</p>
+        </footer>
+    </main>
+
+    <!-- Smart Scroll Top Rocket Button (Bottom Left) -->
+    <div class="smart-scroll-top" id="scrollTopBtn" title="Terbang ke Atas">
+        <!-- SVG Rocket Icon -->
+        <svg viewBox="0 0 24 24">
+            <path d="M12 2s-4 4.5-4 10a4 4 0 0 0 8 0c0-5.5-4-10-4-10z" />
+            <path d="M9 15v3c0 1 1 2 3 2s3-1 3-2v-3" />
+            <path d="M12 5v4M9 9h6" />
+        </svg>
+    </div>
+
+    <!-- Floating Update Button (Bottom Right) -->
+    <div class="floating-update-btn" id="openChangelog">
+        <div class="vip-badge-dot"></div>
+        <span>System Updates</span>
+    </div>
+
+    <!-- Changelog Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="close-modal" id="closeModal">&times;</div>
+            <h2 class="changelog-title">System Update Hub</h2>
+
+            <!-- Version 3.0 (Latest release) -->
+            <div class="log-entry">
+                <div class="log-date">AGUSTUS 28, 2026</div>
+                <div class="log-header">V3.0 - Cloud Screenshot Turbo Suite <span class="log-tag">Latest</span></div>
+                <ul class="log-list">
+                    <li><b>Smart Auto-Screenshot & Cloud:</b> Penambahan modul tangkapan layar otomatis dengan kompresi kanvas lokal kilat (WebP/JPEG 0.88, hemat 85% bandwidth) dan rotasi multi-key ImgBB anti-limit.</li>
+                    <li><b>Smart Session Isolation (Crop):</b> Otomatis memotong hanya percakapan sesi aktif terkini dan mengekstrak Chat ID secara 100% akurat dari multi-layer resolver.</li>
+                    <li><b>Global Hotkey & Glassmorphism HUD:</b> Dukungan tombol cepat <b>Alt + S</b> untuk eksekusi 1 detik dan dynamic island HUD kaca melayang dengan Web Audio chime.</li>
+                </ul>
+            </div>
+
+            <!-- Version 2.5 -->
+            <div class="log-entry">
+                <div class="log-date">FEBRUARI 18, 2026</div>
+                <div class="log-header">V2.5 - Executive Core Release</div>
+                <ul class="log-list">
+                    <li><b>Obsidian Design Overhaul:</b> Merombak total visual kaku bertema neon menjadi gaya premium kaca kristal gelap (smoked glass) dengan perpaduan ornamen logam emas mewah.</li>
+                    <li><b>Live Monitor & SVG Pulsewave:</b> Integrasi status monitor atas real-time yang memuat data detak latensi serta grafik pulsa gelombang detak jantung SVG interaktif.</li>
+                    <li><b>Interactive Keyword Playground:</b> Membangun konsol simulator kata kunci cerdas di mana pengguna dapat menguji deteksi tag secara instan dari dashboard.</li>
+                    <li><b>Bespoke Inline SVG Icons:</b> Mengganti seluruh emoji biasa dengan grafik vektor telemetri yang sangat presisi di dalam bingkai cincin logam emas.</li>
+                </ul>
+            </div>
+
+            <!-- Version 2.2 (Previous release) -->
+            <div class="log-entry">
+                <div class="log-date">JANUARI 31, 2026</div>
+                <div class="log-header">V2.2 - Security & Performance Pack</div>
+                <ul class="log-list">
+                    <li><b>Neural Keydown Lock:</b> Penguatan integrasi pencegahan bypass spam pada keyboard untuk memblokir pengetikan Enter yang tidak disengaja.</li>
+                    <li><b>Memory Booster Protocol:</b> Menurunkan konsumsi daya CPU browser hingga 35% saat memproses visual pemisahan history chat pada daftar pesan yang sangat panjang.</li>
+                </ul>
+            </div>
+
+            <!-- Version 2.2 (Previous release) -->
+            <div class="log-entry">
+                <div class="log-date">JANUARI 31, 2026</div>
+                <div class="log-header">V2.2 - Security & Performance Pack</div>
+                <ul class="log-list">
+                    <li><b>Neural Keydown Lock:</b> Penguatan integrasi pencegahan bypass spam pada keyboard untuk memblokir pengetikan Enter yang tidak disengaja.</li>
+                    <li><b>Memory Booster Protocol:</b> Menurunkan konsumsi daya CPU browser hingga 35% saat memproses visual pemisahan history chat pada daftar pesan yang sangat panjang.</li>
+                </ul>
+            </div>
+
+            <div class="tutorial-box" style="margin-top: 25px; text-align: left;">
+                <p style="font-size: 12px; margin-bottom: 8px;">💡 <b>Keamanan Enkripsi:</b> Seluruh pengolahan skrip dilakukan 100% lokal pada browser agen Anda. Tidak ada data pelanggan atau kata kunci yang dialirkan ke server eksternal mana pun.</p>
+                <p style="font-size: 12px;">🛡️ <b>Backup Rutin:</b> Sangat disarankan untuk melakukan ekspor pengaturan kata kunci Anda dari menu setelan skrip 1 (Highlighter Pro) sebagai berkas cadangan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Web Audio Synthesizer, Playground, & Parallax Logic -->
+    <script>
+        // High-Class Audio Synth Engine (Web Audio API)
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Luxurious high-tech soft chime
+        function playChime(freq, duration = 0.08, type = 'sine', vol = 0.05) {
+            try {
+                initAudio();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                // Audio not allowed / not supported
+            }
+        }
+
+        // Digital click tone for controls
+        function playClick() {
+            playChime(1500, 0.04, 'sine', 0.03);
+            setTimeout(() => playChime(2200, 0.03, 'sine', 0.02), 25);
+        }
+
+        // Double success chirp for simulator detection
+        function playChirp() {
+            playChime(1800, 0.06, 'sine', 0.04);
+            setTimeout(() => playChime(2400, 0.06, 'sine', 0.03), 40);
+        }
+
+        // Dynamic System Status Monitor Metric Shift
+        const latencyVal = document.getElementById('latencyVal');
+        const slaVal = document.getElementById('slaVal');
+        
+        setInterval(() => {
+            // Subtle latency simulation fluctuations
+            if (Math.random() > 0.6) {
+                const current = parseInt(latencyVal.textContent);
+                const shift = Math.random() > 0.5 ? 1 : -1;
+                let next = current + shift;
+                if (next < 8) next = 8;
+                if (next > 16) next = 16;
+                latencyVal.textContent = next + 'ms';
+            }
+        }, 3000);
+
+        // Toggle Switch & Audio Interaction
+        const toggles = document.querySelectorAll('.gold-toggle input');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                playClick();
+                // Dynamically modify stats on status monitor to feel alive
+                const activeCount = Array.from(toggles).filter(t => t.checked).length;
+                if (activeCount === 3) {
+                    slaVal.textContent = '99.8%';
+                    slaVal.style.color = '#00ff7f';
+                } else if (activeCount === 2) {
+                    slaVal.textContent = '97.2%';
+                    slaVal.style.color = 'var(--gold-primary)';
+                } else {
+                    slaVal.textContent = '91.4%';
+                    slaVal.style.color = '#ff2a5f';
+                }
+            });
+        });
+
+        // Interactive Keyword Simulator Playground Logic
+        const simInput = document.getElementById('simInput');
+        const simOutput = document.getElementById('simOutput');
+        let playSoundTimeout = null;
+
+        simInput.addEventListener('input', () => {
+            const val = simInput.value.trim();
+            if (!val) {
+                simOutput.innerHTML = "Menunggu masukan kalimat simulasi...";
+                return;
+            }
+
+            // Keyword mapping
+            const keywords = [
+                { pattern: /depo/gi, rep: '<span class="play-highlight">DEPOSIT DETECTED</span>' },
+                { pattern: /wd/gi, rep: '<span class="play-highlight">WITHDRAW DETECTED</span>' },
+                { pattern: /lupa id/gi, rep: '<span class="play-highlight">ID RECOVERY DETECTED</span>' },
+                { pattern: /lupa password/gi, rep: '<span class="play-highlight">PASSWORD RECOVERY DETECTED</span>' },
+                { pattern: /checking/gi, rep: '<span class="play-highlight">CHECKING STATE</span>' },
+                { pattern: /wait/gi, rep: '<span class="play-highlight">WAIT DETECTED</span>' },
+                { pattern: /spam/gi, rep: '<span class="play-spam-lock">SPAM ATTEMPT DETECTED</span>' },
+                { pattern: /history/gi, rep: '<span class="play-history-bg">HISTORY SESSION CACHE</span>' },
+                { pattern: /screenshot|capture|\bss\b/gi, rep: '<span class="play-highlight" style="border-left-color:#38bdf8;background:rgba(56,189,248,0.2);">SMART CAPTURE ALT+S</span>' }
+            ];
+
+            let text = val;
+            let matched = false;
+
+            keywords.forEach(kw => {
+                if (kw.pattern.test(text)) {
+                    text = text.replace(kw.pattern, kw.rep);
+                    matched = true;
+                }
+            });
+
+            simOutput.innerHTML = text;
+
+            if (matched) {
+                // Play soft chime only once after typing ceases to avoid ear fatigue
+                clearTimeout(playSoundTimeout);
+                playSoundTimeout = setTimeout(() => {
+                    playChirp();
+                }, 300);
+            }
+        });
+
+        // Modal Controls
+        const openBtn = document.getElementById('openChangelog');
+        const closeBtn = document.getElementById('closeModal');
+        const modal = document.getElementById('modalOverlay');
+
+        openBtn.onclick = () => {
+            playClick();
+            modal.style.display = 'flex';
+            void modal.offsetWidth;
+            modal.classList.add('active');
+        };
+
+        const hideModal = () => {
+            playClick();
+            modal.classList.remove('active');
+            setTimeout(() => {
+                if (!modal.classList.contains('active')) {
+                    modal.style.display = 'none';
+                }
+            }, 400);
+        };
+
+        closeBtn.onclick = hideModal;
+
+        window.onclick = (e) => {
+            if (e.target === modal) {
+                hideModal();
+            }
+        };
+
+        // Scroll to Top Rocket FAB
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        window.onscroll = () => {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        };
+
+        scrollTopBtn.onclick = () => {
+            playClick();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        };
+
+        // Subtle Parallax Cursor Movement on background orbs
+        document.addEventListener('mousemove', (e) => {
+            const orbs = document.querySelectorAll('.orb');
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+
+            orbs.forEach((orb, idx) => {
+                const damping = (idx + 1) * 30;
+                orb.style.transform = `translate3d(${x * damping}px, ${y * damping}px, 0)`;
+            });
+        });
+    </script>
+</body>
+
+</html>

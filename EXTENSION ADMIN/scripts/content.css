@@ -1,0 +1,12 @@
+/* ============================================
+   STREET ART ADMIN CUSTOMIZER - CONTENT CSS
+   Pre-loaded styles (non-dynamic)
+   ============================================ */
+
+/* Smooth transitions for all modified elements */
+td, th, label, span, a, div, input, button, tr {
+  transition: background-color 0.3s ease, color 0.2s ease, box-shadow 0.3s ease;
+}
+
+/* Load Google Fonts for POW effect and combo toast */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');

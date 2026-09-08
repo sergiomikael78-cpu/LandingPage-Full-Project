@@ -1,0 +1,85 @@
+{
+  "manifest_version": 3,
+  "name": "SMJ Auto Check SC",
+  "version": "272002",
+  "description": "Ekstensi otomatis untuk memeriksa transaksi dan mendeteksi scatter Punya SMJ",
+  "permissions": [
+    "tabs",
+    "windows",
+    "scripting",
+    "activeTab",
+    "storage",
+    "notifications",
+    "alarms",
+    "webRequest",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "https://*/transaction-record.html*",
+    "https://*/history/*",
+    "https://agent.png777.com/*",
+    "http://localhost/*",
+    "https://localhost/*",
+    "https://smbabsen.site/*",
+    "https://*.smbabsen.site/*",
+    "https://127.0.0.1/*",
+    "https://*.masuk.fun/*",
+    "https://wbteam.cloud/*",
+    "https://ws.wbteam.cloud/*",
+    "https://*.wbteam.cloud/*",
+    "https://masuk.fun/*",
+    "https://public.u2uyu876x.com/*",
+    "https://public-api.u2uyu876x.com/*",
+    "https://bonussmb.com/*",
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*",
+    "https://api.ocr.space/*",
+    "https://iyakah.fun/*",
+    "https://new.glanters.site/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "JutawanBet Checker"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/transaction-record.html*",
+        "https://*/history/*.html*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://bonussmb.com/*"
+      ],
+      "js": [
+        "bonussmb-content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "worker.min.js",
+        "tesseract-core.wasm.js",
+        "tesseract-core.wasm",
+        "tesseract-core-simd.wasm",
+        "tesseract-core-simd.wasm.js",
+        "eng.traineddata.gz"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

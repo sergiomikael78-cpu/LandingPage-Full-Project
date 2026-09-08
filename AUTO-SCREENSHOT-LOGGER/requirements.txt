@@ -1,0 +1,8 @@
+pygetwindow
+requests
+mss
+termcolor
+Pillow
+keyboard
+winshell
+pywin32 

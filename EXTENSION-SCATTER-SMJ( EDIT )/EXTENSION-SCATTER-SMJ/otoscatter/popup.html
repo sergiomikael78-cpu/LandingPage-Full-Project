@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <title>SMJ AUTOCHECKER</title>
+  <style>
+    /* ... (Style yang sudah ada) ... */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 15px;
+      width: 600px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 5px;
+      margin-top: 4px;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 8px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #444;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      font-size: 0.85em;
+    }
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    /* Container untuk 2 tombol di bawah */
+    #buttonContainer {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    #clearBtn,
+    #copyBtn {
+      width: 50%;
+      margin-top: 0;
+      padding: 8px;
+    }
+
+    #clearBtn {
+      background: #dc3545;
+    }
+
+    #clearBtn:hover {
+      background: #b02a37;
+    }
+
+    #copyBtn {
+      background: #28a745;
+    }
+
+    #copyBtn:hover {
+      background: #1e7e34;
+    }
+  </style>
+</head>
+
+<body>
+  <h3>SMJ AUTOCHECKER</h3>
+
+  <label for="adminUrl">URL Dasar Admin (contoh: https://ag-jutawanbet.idrbo.com)</label>
+  <input type="url" id="adminUrl" placeholder="Masukkan URL Admin">
+  <label>Data Transaksi (TransactionID [TAB/Spasi] UserID, per baris)</label>
+  <textarea id="txData" placeholder="1984827565457594887  cool234&#10;1984854544428868096  hokini78"></textarea>
+
+  <label for="token">Token API</label>
+  <input type="text" id="token" placeholder="Masukkan token API">
+  <button id="startBtn">Mulai Proses Otomatis Batch</button>
+  <button id="openDashboard"
+    style="background: linear-gradient(45deg, #00f2ff, #00ff88); color: #000; font-weight: bold; margin-top: 5px;">🔥
+    BUKA DASHBOARD UTAMA</button>
+  <p id="status">Siap.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>ID Transaksi</th>
+        <th>ID Transaksi</th>
+        <th>Nilai Taruhan</th>
+        <th>Status Scatter</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody">
+      <tr>
+        <td colspan='4'>Belum ada data</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div id="buttonContainer">
+    <button id="copyBtn">Salin Data Hasil</button>
+    <button id="clearBtn">Hapus Hasil & Antrian</button>
+  </div>
+
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

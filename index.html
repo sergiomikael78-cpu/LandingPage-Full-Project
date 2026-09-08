@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMJ Lab — Autonomous Productivity & Extension Command Center</title>
+  <meta name="description" content="SMJ Lab Ecosystem: Ekosistem otomasi lingkungan kerja desktop, ekstensi panel admin, userscripts LiveChat, dan OCR intelligence lokal berkecepatan tinggi.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="smj-logo.png">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Video Background Container -->
+  <div class="video-background-container">
+    <video class="bg-video" autoplay muted loop playsinline preload="auto">
+      <source src="hunt-showdown-veil-of-thorns.3840x2160.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Ambient Glow & Video Overlay Filters -->
+  <div class="video-overlay"></div>
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Main Navigation Bar -->
+  <header class="navbar">
+    <nav class="nav-wrapper">
+      <a href="#hero" class="brand-group">
+        <img src="smj-logo.png" alt="SMJ Lab Logo" class="brand-logo-img">
+        <div class="brand-text-block">
+          <span class="brand-title">SMJ Lab</span>
+          <span class="brand-subtitle">Automation & Suite Core</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#overview" class="nav-link">Overview</a></li>
+        <li><a href="#modules" class="nav-link">Katalog Modul</a></li>
+        <li><a href="#downloads" class="nav-link">Download Center</a></li>
+        <li><a href="#soundboard" class="nav-link">Audio Alerts</a></li>
+        <li><a href="#guides" class="nav-link">Panduan Instalasi</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span>SYSTEM ONLINE</span>
+        </div>
+        <a href="#downloads" class="btn btn-primary btn-sm">⬇ Download Modul</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="container">
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-pill">
+        <span>⚡</span>
+        <span>SMJ LAB ECOSYSTEM • V2.5 ENTERPRISE EDITION</span>
+      </div>
+
+      <h1 class="hero-title">
+        The Next-Gen Automation & Productivity <span class="text-gradient">Command Center</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Pusat kendali terpadu yang memadukan aplikasi desktop lokal, ekstensi browser presisi tinggi, modul LiveChat bertenaga, dan mesin OCR WebAssembly untuk mempercepat efisiensi kerja tim tanpa jeda.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="#modules" class="btn btn-primary">
+          <span>🚀 Jelajahi Katalog Modul</span>
+        </a>
+        <a href="#downloads" class="btn btn-accent">
+          <span>⬇ Download Paket & Folder</span>
+        </a>
+        <a href="EXTENSION CHAT-SMJ/index.html" target="_blank" class="btn btn-secondary">
+          <span>🌐 Live Dashboard CHAT-SMJ ↗</span>
+        </a>
+      </div>
+
+      <!-- Quick Stats Metrics -->
+      <div class="stats-container" id="overview">
+        <div class="stat-item">
+          <div class="stat-value">6<span>+</span></div>
+          <div class="stat-label">Core Modules & Suites</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">100<span>%</span></div>
+          <div class="stat-label">Local-First (No Leak)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">&lt;1<span>ms</span></div>
+          <div class="stat-label">DOM Highlighting Latency</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">4PK</div>
+          <div class="stat-label">Macro Expander Vault</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modules Catalog Section -->
+    <section class="section" id="modules">
+      <div class="section-header">
+        <span class="section-tag">Modul & Ekstensi</span>
+        <h2 class="section-title">Katalog Alat Unggulan SMJ Lab</h2>
+        <p class="section-desc">
+          Setiap modul siap pakai, dilengkapi tombol download instan dan instruksi instalasi langsung.
+        </p>
+      </div>
+
+      <!-- Filter and Search Bar -->
+      <div class="filter-search-container">
+        <div class="filter-pills">
+          <button class="filter-btn active" data-filter="all">Semua Modul</button>
+          <button class="filter-btn" data-filter="desktop">Desktop App</button>
+          <button class="filter-btn" data-filter="extension">Chrome Extensions</button>
+          <button class="filter-btn" data-filter="userscript">LiveChat Scripts</button>
+          <button class="filter-btn" data-filter="macro">Macro Vault</button>
+          <button class="filter-btn" data-filter="automation">Automation Tools</button>
+        </div>
+
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="module-search" class="search-input" placeholder="Cari nama tool, file, fitur...">
+        </div>
+      </div>
+
+      <!-- Module Dynamic Grid -->
+      <div class="modules-grid" id="modules-grid">
+        <!-- Rendered dynamically by app.js with Download Buttons & Live Links -->
+      </div>
+    </section>
+
+    <!-- Dedicated Download Center Section -->
+    <section class="section" id="downloads">
+      <div class="section-header">
+        <span class="section-tag">1-Click Download</span>
+        <h2 class="section-title">SMJ Lab Download Center</h2>
+        <p class="section-desc">
+          Unduh paket arsip ZIP resmi untuk setiap modul dan folder kerja sesuai kebutuhan operasional Anda.
+        </p>
+      </div>
+
+      <div class="download-center-grid" id="download-center-grid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- Audio Soundboard Section -->
+    <section class="section" id="soundboard">
+      <div class="audio-tester-card">
+        <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+          <span class="section-tag">Audio Integration</span>
+          <h2 class="section-title" style="font-size: 2.2rem;">Live Audio Alert Tester</h2>
+          <p class="section-desc">
+            Uji coba efek suara notifikasi real-time yang tertanam di dalam modul <code>EXTENSION CHAT-SMJ</code> untuk penanganan respon pesan cepat.
+          </p>
+        </div>
+
+        <div class="audio-grid">
+          <div class="sound-item">
+            <div class="sound-info">
+              <h4>💣 Bomb Defuse Alert</h4>
+              <p>pb-bom-defuse_HORy4kEd.mp3 • Audio alarm penting</p>
+            </div>
+            <button class="play-sound-btn" data-sound="defuse" title="Putar Suara">
+              ▶
+            </button>
+          </div>
+
+          <div class="sound-item">
+            <div class="sound-info">
+              <h4>🔔 Instant Ping Alert</h4>
+              <p>myinstants.mp3 • Nada notifikasi respon cepat</p>
+            </div>
+            <button class="play-sound-btn" data-sound="instant" title="Putar Suara">
+              ▶
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Installation & Setup Documentation Hub -->
+    <section class="section" id="guides">
+      <div class="section-header">
+        <span class="section-tag">Dokumentasi Teknis</span>
+        <h2 class="section-title">Panduan Instalasi & Penggunaan</h2>
+        <p class="section-desc">
+          Langkah-demi-langkah pemasangan setiap modul ke dalam sistem komputer atau browser Anda.
+        </p>
+      </div>
+
+      <div class="install-hub-container">
+        <!-- Tabs Bar -->
+        <div class="install-tabs">
+          <button class="install-tab-btn active" data-tab="tab-workspace">
+            <span>🖥️</span> <span>WORKSPACE-X</span>
+          </button>
+          <button class="install-tab-btn" data-tab="tab-admin">
+            <span>🛹</span> <span>EXTENSION ADMIN</span>
+          </button>
+          <button class="install-tab-btn" data-tab="tab-chat">
+            <span>💬</span> <span>EXTENSION CHAT-SMJ</span>
+          </button>
+          <button class="install-tab-btn" data-tab="tab-pk">
+            <span>⌨️</span> <span>PERFECT KEYBOARD</span>
+          </button>
+          <button class="install-tab-btn" data-tab="tab-scatter">
+            <span>🎰</span> <span>EXTENSION SCATTER (OCR)</span>
+          </button>
+          <button class="install-tab-btn" data-tab="tab-autoss">
+            <span>📸</span> <span>AUTO-SS-SMJ</span>
+          </button>
+        </div>
+
+        <!-- Tab Content 1: WORKSPACE-X -->
+        <div class="tab-pane active" id="tab-workspace">
+          <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 16px;">
+            <div>
+              <h4 style="color: #ffffff; margin-bottom: 4px;">Unduh Paket Kode Sumber WORKSPACE-X</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Siap pakai dengan dependensi Tauri v2, React 19, dan Extension Bridge.</p>
+            </div>
+            <a href="WORKSPACE-X.zip" download class="btn btn-primary btn-sm">⬇ Download WORKSPACE-X.zip</a>
+          </div>
+
+          <div class="install-step-list">
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Prasyarat Lingkungan (Prerequisites)</h3>
+              </div>
+              <p class="step-body">
+                Pastikan komputer telah terinstal <strong>Node.js</strong> (v18+) dan <strong>Rust Compiler</strong> (untuk kompilasi aplikasi desktop Tauri v2).
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Instalasi Dependensi Node & Frontend</h3>
+              </div>
+              <p class="step-body">
+                Buka terminal pada folder <code>WORKSPACE-X</code> dan jalankan perintah:
+              </p>
+              <div class="code-block-wrapper">
+                <code class="code-block">cd WORKSPACE-X
+npm install</code>
+                <button class="copy-btn">Salin Perintah</button>
+              </div>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Menjalankan Mode Development Desktop</h3>
+              </div>
+              <p class="step-body">
+                Jalankan aplikasi desktop dengan perintah Vite / Tauri berikut:
+              </p>
+              <div class="code-block-wrapper">
+                <code class="code-block">npm run tauri dev</code>
+                <button class="copy-btn">Salin Perintah</button>
+              </div>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Memasang Browser Bridge Extension (Opera / Chrome)</h3>
+              </div>
+              <p class="step-body">
+                Buka <code>opera://extensions</code> atau <code>chrome://extensions</code> → Aktifkan <strong>Developer Mode</strong> di pojok kanan atas → Klik <strong>Load Unpacked</strong> → Pilih subfolder <code>WORKSPACE-X/extension</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content 2: EXTENSION ADMIN -->
+        <div class="tab-pane" id="tab-admin">
+          <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 16px;">
+            <div>
+              <h4 style="color: #ffffff; margin-bottom: 4px;">Unduh Paket Ekstensi Admin</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Format ZIP siap muat langsung via Chrome / Opera Developer Mode.</p>
+            </div>
+            <a href="EXTENSION-ADMIN.zip" download class="btn btn-primary btn-sm">⬇ Download EXTENSION-ADMIN.zip</a>
+          </div>
+
+          <div class="install-step-list">
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Buka Halaman Ekstensi Browser</h3>
+              </div>
+              <p class="step-body">
+                Buka browser Chrome, Opera, Brave, atau Microsoft Edge Anda, lalu ketik alamat berikut di URL bar:
+              </p>
+              <div class="code-block-wrapper">
+                <code class="code-block">chrome://extensions/</code>
+                <button class="copy-btn">Salin URL</button>
+              </div>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Aktifkan Developer Mode</h3>
+              </div>
+              <p class="step-body">
+                Aktifkan tombol toggle <strong>Developer mode</strong> (Mode Pengembang) yang berada di sudut kanan atas halaman ekstensi.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Muat Folder Ekstensi (Load Unpacked)</h3>
+              </div>
+              <p class="step-body">
+                Klik tombol <strong>Load unpacked</strong> (Muat yang belum dibongkar) di pojok kiri atas, lalu arahkan dan pilih folder <code>EXTENSION ADMIN</code> di direktori proyek ini.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Verifikasi & Penggunaan</h3>
+              </div>
+              <p class="step-body">
+                Ekstensi <strong>Street Art Admin Customizer</strong> akan langsung aktif. Buka portal admin yang sesuai (misal: <code>ag-latoto.idrbo.com</code>) dan nikmati fitur customizer & floating notes.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content 3: EXTENSION CHAT-SMJ -->
+        <div class="tab-pane" id="tab-chat">
+          <div style="background: rgba(157, 78, 221, 0.12); border: 1px solid rgba(157, 78, 221, 0.4); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h4 style="color: #ffffff; margin-bottom: 4px;">Akses Penuh CHAT-SMJ Suite</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Buka web landing page mandiri atau unduh paket script & audio alert lengkap.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <a href="EXTENSION CHAT-SMJ/index.html" target="_blank" class="btn btn-accent btn-sm">🌐 Buka Landingpage CHAT-SMJ ↗</a>
+              <a href="EXTENSION-CHAT-SMJ.zip" download class="btn btn-primary btn-sm">⬇ Download CHAT-SMJ.zip</a>
+            </div>
+          </div>
+
+          <div class="install-step-list">
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Pasang Ekstensi Tampermonkey / Violentmonkey</h3>
+              </div>
+              <p class="step-body">
+                Pastikan browser Anda telah memiliki ekstensi pengelola userscript seperti <strong>Tampermonkey</strong> atau <strong>Violentmonkey</strong> dari Chrome Web Store.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Import File Scripts (LATOTO 1 s/d 5)</h3>
+              </div>
+              <p class="step-body">
+                Buka Dashboard Tampermonkey → Klik <strong>Utilities</strong> → Pilih <strong>Import from file</strong> → Masukkan file <code>LATOTO1.user.js</code> sampai <code>LATOTO5.user.js</code> dari folder <code>EXTENSION CHAT-SMJ</code>.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Membuka Dashboard Executive Command Center</h3>
+              </div>
+              <p class="step-body">
+                Buka landing page dan konsol kontrol mandiri secara langsung melalui link berikut:
+              </p>
+              <div class="code-block-wrapper">
+                <code class="code-block"><a href="EXTENSION CHAT-SMJ/index.html" target="_blank" style="color: #38bdf8; text-decoration: underline;">EXTENSION CHAT-SMJ/index.html</a></code>
+                <button class="copy-btn">Salin Path</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content 4: PERFECT KEYBOARD -->
+        <div class="tab-pane" id="tab-pk">
+          <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h4 style="color: #ffffff; margin-bottom: 4px;">Unduh Paket Database Makro Perfect Keyboard (.4pk)</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Tersedia paket bundle ZIP lengkap atau unduh file database .4pk individual.</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <a href="PERFECT-KEYBOARD-SUITE.zip" download class="btn btn-primary btn-sm">⬇ Bundle All Macros (.zip)</a>
+              <a href="PERFECT-KEYBOARD-SUITE/macros/1_KHUSUS_EVENT.4pk" download class="btn btn-secondary btn-sm">⬇ Khusus Event (.4pk)</a>
+              <a href="PERFECT-KEYBOARD-SUITE/macros/2_PK_ANTI_AUDIT_2025.4pk" download class="btn btn-secondary btn-sm">⬇ Anti Audit (.4pk)</a>
+            </div>
+          </div>
+
+          <div class="install-step-list">
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Buka Aplikasi Perfect Keyboard</h3>
+              </div>
+              <p class="step-body">
+                Jalankan software <strong>Perfect Keyboard 9.4.6</strong> di komputer Windows Anda (icon kubus biru di taskbar/system tray).
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Buka Menu Open Macro File</h3>
+              </div>
+              <p class="step-body">
+                Klik menu <strong>File</strong> di pojok kiri atas jendela Perfect Keyboard → Pilih <strong>Open Macro File...</strong> (atau tekan tombol kombinasi <code>Ctrl + O</code>).
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Pilih File .4pk yang Ingin Dimuat</h3>
+              </div>
+              <p class="step-body">
+                Arahkan ke folder <code>PERFECT-KEYBOARD-SUITE/macros/</code> dan pilih file makro yang dibutuhkan (misal: <code>1_KHUSUS_EVENT.4pk</code>, <code>2_PK_ANTI_AUDIT_2025.4pk</code>, <code>3_PK_PENDAMPING_2025.4pk</code>, atau <code>4_PK_PIHAK_KETIGA.4pk</code>), lalu klik <strong>Open</strong>.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Selesai & Siap Digunakan</h3>
+              </div>
+              <p class="step-body">
+                Seluruh shortcut auto-text akan langsung aktif di keyboard Anda. Cukup ketik shortcut di chat LiveChat dan teks balasan akan terisi otomatis secara instan.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content 5: EXTENSION-SCATTER-SMJ -->
+        <div class="tab-pane" id="tab-scatter">
+          <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <h4 style="color: #ffffff; margin: 0;">Unduh Paket Ekstensi OCR Suite v2.7</h4>
+                <span style="background: rgba(0, 240, 255, 0.2); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.4); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; text-transform: uppercase;">Updated v2.7</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Paket terbaru dengan Antrean 4-Kolom, Instant Google Sheets Sync, Safety Lock 100%, dan link interaktif di Dashboard.</p>
+            </div>
+            <a href="EXTENSION-SCATTER-SMJ.zip" download class="btn btn-primary btn-sm">⬇ Download EXTENSION-SCATTER-SMJ.zip (~20.7 MB)</a>
+          </div>
+
+          <!-- Feature Highlights Card -->
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
+            <h5 style="color: #e2e8f0; margin-bottom: 10px; font-size: 0.92rem; display: flex; align-items: center; gap: 8px;">
+              <span>✨</span> <span>Pembaruan Fitur Terbaru (v2.7)</span>
+            </h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; font-size: 0.83rem; color: var(--text-dim);">
+              <div style="display: flex; align-items: flex-start; gap: 8px;">
+                <span style="color: #00f0ff;">▸</span>
+                <span><strong>Antrean Cerdas 4 Kolom:</strong> <code>UserID [TAB] KodeTiket [TAB] Livechat [TAB] Screenshot</code>.</span>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 8px;">
+                <span style="color: #00f0ff;">▸</span>
+                <span><strong>Instant Sheets Sync:</strong> Status Approved/Rejected langsung terkirim seketika dengan auto-retry 3x.</span>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 8px;">
+                <span style="color: #00f0ff;">▸</span>
+                <span><strong>Safety Lock 100%:</strong> Verifikasi ganda angka scatter sebelum klik simpan tiket bonus.</span>
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 8px;">
+                <span style="color: #00f0ff;">▸</span>
+                <span><strong>Auto-Spacing Pintar:</strong> Otomatis beri spasi saat paste antrean di popup/dashboard.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="install-step-list">
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Ekstrak Arsip ZIP</h3>
+              </div>
+              <p class="step-body">
+                Ekstrak file <code>EXTENSION-SCATTER-SMJ.zip</code>. Di dalamnya terdapat subfolder <code>otoscatter</code> yang berisi seluruh binary WASM, trained data, dashboard, dan service worker ekstensi.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Load Unpacked di Browser Chrome / Opera</h3>
+              </div>
+              <p class="step-body">
+                Buka <code>chrome://extensions</code> → Aktifkan <strong>Developer mode</strong> (kanan atas) → Klik <strong>Load unpacked</strong> → Pilih folder <code>otoscatter</code> hasil ekstrak.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Buka Dashboard & Konfigurasi URL</h3>
+              </div>
+              <p class="step-body">
+                Buka dashboard melalui ikon ekstensi atau akses file <code>otoscatter/dashboard.html</code>. Masukkan URL Admin (protokol <code>https://</code> otomatis dilengkapi jika terlewat) dan URL Webhook Google Sheets untuk sinkronisasi otomatis.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Deploy Antrean & Monitor Ekstraksi Visual</h3>
+              </div>
+              <p class="step-body">
+                Paste antrean transaksi dengan format <code>UserID [TAB] KodeTiket [TAB] Link Livechat [TAB] Screenshot</code>. Tekan <strong>Deploy Scanner</strong>. Dashboard 8-kolom akan memindai scatter secara presisi, menyediakan tautan langsung 💬 <em>Buka Livechat</em> & 📸 <em>Lihat Bukti SS</em>, serta mengirim status real-time ke Google Sheets.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content 5: AUTO-SCREENSHOT-LOGGER -->
+        <div class="tab-pane" id="tab-autoss">
+          <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h4 style="color: #ffffff; margin-bottom: 4px;">Paket Siap Pakai AUTO-SCREENSHOT-LOGGER</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Termasuk 1-Klik Launcher, Dropdown Pemilih Nama CS, dan Installer Python Offline.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <a href="AUTO-SCREENSHOT-LOGGER.zip" download class="btn btn-primary btn-sm">⬇ Download AUTO-SCREENSHOT-LOGGER (.zip)</a>
+            </div>
+          </div>
+
+          <div class="install-step-list">
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Ekstrak & Buka Folder</h3>
+              </div>
+              <p class="step-body">
+                Ekstrak file <code>AUTO-SCREENSHOT-LOGGER.zip</code> ke folder komputer Anda.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Jalankan 1-KLIK-JALANKAN.bat</h3>
+              </div>
+              <p class="step-body">
+                Klik 2x file <strong><code>1-KLIK-JALANKAN.bat</code></strong>. Aplikasi akan otomatis memeriksa Python dan dependensi tanpa konfigurasi rumit.
+              </p>
+            </div>
+
+            <div class="install-step-card">
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Pilih Nama Agen CS dari Dropdown</h3>
+              </div>
+              <p class="step-body">
+                Pada tab <strong>🔧 CONFIGURATION</strong>, pilih nama agen CS Anda pada menu dropdown. Link Discord Webhook akan otomatis terisi. Klik <strong>💾 SAVE SETTINGS</strong> lalu <strong>🚀 START SERVICE</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Detailed Module Modal Dialog -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="card-icon-badge" id="modal-module-icon" style="width: 46px; height: 46px; font-size: 1.3rem;">📦</div>
+          <div>
+            <h3 id="modal-module-title" style="font-size: 1.35rem; font-weight: 800; color: #ffffff;">Nama Modul</h3>
+            <span id="modal-module-badge" class="card-category-tag" style="display: inline-block; margin-top: 4px;">Badge Info</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="modal-close-btn" title="Tutup Modal">✕</button>
+      </div>
+
+      <div class="modal-content-body">
+        <div class="modal-section">
+          <h4 class="modal-section-title">📌 Deskripsi & Manfaat</h4>
+          <p id="modal-module-desc" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7;"></p>
+        </div>
+
+        <div class="modal-section">
+          <h4 class="modal-section-title">✨ Keunggulan Utama</h4>
+          <ul id="modal-module-features" style="list-style: none;"></ul>
+        </div>
+
+        <div class="modal-section">
+          <h4 class="modal-section-title">📁 Struktur & File Inti</h4>
+          <div class="file-tree-container" id="modal-module-files"></div>
+        </div>
+
+        <div style="margin-top: 24px;" id="modal-actions-container">
+          <!-- Dynamic Action Buttons injected by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-group">
+            <img src="smj-logo.png" alt="SMJ Lab Logo" class="brand-logo-img">
+            <div class="brand-text-block">
+              <span class="brand-title">SMJ Lab</span>
+              <span class="brand-subtitle">Automation Suite</span>
+            </div>
+          </div>
+          <p>
+            Inovasi otomasi cerdas dan lingkungan kerja presisi tinggi untuk akselerasi performa tim operasional.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Koleksi Modul</h4>
+          <ul class="footer-links">
+            <li><a href="#modules">Workspace Hub (Tauri)</a></li>
+            <li><a href="#modules">Street Art Admin Customizer</a></li>
+            <li><a href="EXTENSION CHAT-SMJ/index.html" target="_blank">Highlighter Pro LiveChat ↗</a></li>
+            <li><a href="#modules">Tesseract WASM OCR</a></li>
+            <li><a href="#modules">Auto Screen Capture</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Download Packages</h4>
+          <ul class="footer-links">
+            <li><a href="WORKSPACE-X.zip" download>Download Workspace-X (.zip)</a></li>
+            <li><a href="EXTENSION-ADMIN.zip" download>Download Ext Admin (.zip)</a></li>
+            <li><a href="EXTENSION-CHAT-SMJ.zip" download>Download Chat Suite (.zip)</a></li>
+            <li><a href="PERFECT-KEYBOARD-SUITE.zip" download>Download Perfect Keyboard (.zip)</a></li>
+            <li><a href="EXTENSION-SCATTER-SMJ.zip" download>Download OCR Suite (.zip)</a></li>
+            <li><a href="AUTO-SCREENSHOT-LOGGER.zip" download>Download Auto-SS Logger (.zip)</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Keamanan & Privasi</h4>
+          <ul class="footer-links">
+            <li><a href="#">100% Local Execution</a></li>
+            <li><a href="#">No Cloud Storage</a></li>
+            <li><a href="#">Zero Credential Retention</a></li>
+            <li><a href="#">Multi-Shift Safe</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 SMJ Lab Command Center. All Rights Reserved. Built with Precision & Speed.</p>
+        <p>Target Environment: Windows 11 / Opera / Chromium Engine</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JavaScript -->
+  <script src="app.js"></script>
+</body>
+</html>

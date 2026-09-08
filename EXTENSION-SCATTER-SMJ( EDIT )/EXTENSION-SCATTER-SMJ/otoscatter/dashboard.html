@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMJ AUTOCHECKER</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="tesseract.min.js"></script>
+</head>
+
+<body>
+    <div class="layout-container">
+        <!-- Sidebar: Configuration & Status -->
+        <aside class="sidebar">
+            <header>
+                <h1>SMJ <span style="font-weight: 300;">AUTO</span></h1>
+            </header>
+
+            <div class="card">
+                <div id="connectionStatus" class="sync-status">
+                    <div class="indicator" id="syncIndicator"></div>
+                    <span id="syncText">Sheets Sync: Off</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <label>Token Pancingan</label>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="autoKeepAlive">
+                        <label for="autoKeepAlive" class="toggle-label"></label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="keepAliveUserId" placeholder="User ID Pancingan">
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <input type="text" id="keepAliveTicketId" placeholder="Order ID Pancingan">
+                </div>
+                <div id="pancinganStatusMsg" class="pancingan-status-msg hidden"></div>
+            </div>
+
+            <!-- BONUSSMB AUTO FILL TOGGLE -->
+            <div class="card">
+                <div class="card-header">
+                    <label>BonusSMB Auto Fill</label>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="bonussmbAutoToggle" checked>
+                        <label for="bonussmbAutoToggle" class="toggle-label"></label>
+                    </div>
+                </div>
+                <p style="font-size: 0.72em; color: var(--text-dim); margin: 4px 0 0 0; line-height: 1.4;">
+                    Otomatis input tiket ke bonussmb.com setelah scatter terdeteksi.
+                </p>
+            </div>
+
+            <div class="card">
+                <label>API Configuration</label>
+                <div class="input-group">
+                    <span class="input-label">URL Admin</span>
+                    <input type="text" id="adminUrl" placeholder="Masukkan URL Admin">
+                </div>
+                <div class="input-group">
+                    <span class="input-label">API Sheets</span>
+                    <input type="text" id="sheetApiUrl" placeholder="Masukkan URL Google Sheets">
+                </div>
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <span class="input-label" style="margin: 0;">Token Session</span>
+                        <div id="headerStatus" class="header-status-badge hidden">Active Header</div>
+                        <span id="lastUpdateStatus" class="token-status">Update: --:--:--</span>
+                    </div>
+                    <input type="text" id="token" placeholder="Masukkan Token Aktif">
+                </div>
+
+                <div class="buttons-grid">
+                    <button id="clearBtn" class="secondary-btn" style="grid-column: span 2;">Reset All</button>
+                </div>
+                <div id="statusMessage"
+                    style="margin-top: 15px; font-size: 0.85em; color: var(--secondary); text-align: center;"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content: Task Input & OCR Tools -->
+        <main class="main-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <label style="margin: 0;">Data Antrean Transaksi</label>
+                    <button id="clearTxBtn" class="btn-action-small">Hapus List</button>
+                </div>
+                <button id="startBtn" style="width: 100%; margin-bottom: 15px;">Deploy Scanner</button>
+                <textarea id="txData"
+                    placeholder="Paste data transaksi di sini... (Format: UserID [TAB] KodeTiket [TAB] LinkLivechat [TAB] Screenshot)"></textarea>
+            </div>
+
+            <div class="ocr-grid">
+                <!-- OCR 1 -->
+                <div class="card ocr-card">
+                    <label>OCR Scanner 1</label>
+                    <input type="text" id="ocrApiKey" placeholder="OCR.space API Key"
+                        style="font-size: 0.8em; margin-bottom: 10px;">
+
+                    <div id="ocrPasteArea" class="ocr-drag-zone" tabindex="0">
+                        <div class="ocr-prompt">
+                            <span class="ocr-icon">📸</span>
+                            <p>Klik & <strong>Paste</strong> Gambar 1</p>
+                        </div>
+                        <div id="ocrLoading" class="ocr-loading hidden">
+                            <div class="spinner"></div>
+                            <span id="ocrStatusText" style="font-size: 0.75rem;">Scanning...</span>
+                        </div>
+                    </div>
+                    <div id="ocrEngineInfo"
+                        style="font-size: 0.65rem; color: var(--text-dim); text-align: center; margin-bottom: 8px;">
+                        Engine: Idle</div>
+                    <div class="ocr-result-bar">
+                        <input type="text" id="ocrResult" readonly placeholder="Result 1">
+                        <button id="copyOcrResultBtn" class="btn-action-small" style="height: 42px;">SALIN</button>
+                    </div>
+                </div>
+
+                <!-- OCR 2 -->
+                <div class="card ocr-card">
+                    <label>OCR Scanner 2</label>
+                    <div
+                        style="height: 38px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: var(--text-dim); border: 1px dashed var(--glass-border); border-radius: 8px;">
+                        Uses Shared API Key
+                    </div>
+
+                    <div id="ocrPasteArea2" class="ocr-drag-zone" tabindex="0">
+                        <div class="ocr-prompt">
+                            <span class="ocr-icon">📸</span>
+                            <p>Klik & <strong>Paste</strong> Gambar 2</p>
+                        </div>
+                        <div id="ocrLoading2" class="ocr-loading hidden">
+                            <div class="spinner"></div>
+                            <span id="ocrStatusText2" style="font-size: 0.75rem;">Scanning...</span>
+                        </div>
+                    </div>
+                    <div id="ocrEngineInfo2"
+                        style="font-size: 0.65rem; color: var(--text-dim); text-align: center; margin-bottom: 8px;">
+                        Engine: Idle</div>
+                    <div class="ocr-result-bar">
+                        <input type="text" id="ocrResult2" readonly placeholder="Result 2">
+                        <button id="copyOcrResultBtn2" class="btn-action-small" style="height: 42px;">SALIN</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Table Area -->
+            <div class="card results-card">
+                <div class="table-wrapper">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Kode Tiket</th>
+                                <th>Livechat</th>
+                                <th>Bukti SS</th>
+                                <th>Nominal</th>
+                                <th>Status Scatter</th>
+                                <th>BONUSSMB</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultBody">
+                            <tr>
+                                <td colspan="8" style="text-align:center; color:var(--text-dim); padding: 40px;">
+                                    Menunggu data transaksi...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- Custom Modern Modal (Reset Confirmation) -->
+    <div id="resetModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-icon">⚠️</div>
+                <h2 class="modal-title">KONFIRMASI RESET</h2>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin melakukan reset data?<br>Transaksi aktif akan tetap dipertahankan untuk pemantauan.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelResetBtn" class="modal-btn btn-cancel">BATAL</button>
+                <button id="confirmResetBtn" class="modal-btn btn-confirm">YA, RESET DATA</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

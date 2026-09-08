@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Workspace Hub Browser Bridge",
+  "version": "1.0.0",
+  "description": "Local-first Browser Extension Bridge for Workspace Hub Desktop App",
+  "permissions": [
+    "tabs",
+    "tabGroups",
+    "windows",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "ws://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "action": {
+    "default_title": "Workspace Hub Bridge"
+  }
+}

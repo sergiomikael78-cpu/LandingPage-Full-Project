@@ -1,0 +1,32 @@
+{
+  "name": "workspace-hub",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:ext": "esbuild extension/background/service-worker.ts --bundle --outfile=extension/background/service-worker.js --target=es2022",
+    "build": "npm run build:ext && tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@tauri-apps/api": "^2.2.0",
+    "@tauri-apps/plugin-opener": "^2.2.0",
+    "lucide-react": "^0.475.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.306",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "@tauri-apps/cli": "^2.2.0"
+  }
+}

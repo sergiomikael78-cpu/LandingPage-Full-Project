@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Street Art Admin Customizer",
+  "version": "1.0.0",
+  "description": "🛹 Customize your admin panel with street art vibes! Highlights, themes, quick notes & more.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "clipboardWrite",
+    "unlimitedStorage"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://ag-latoto.idrbo.com/*"
+      ],
+      "js": ["scripts/content.js"],
+      "css": ["scripts/content.css"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": [
+        "*://ag-latoto.idrbo.com/*"
+      ]
+    }
+  ]
+}
