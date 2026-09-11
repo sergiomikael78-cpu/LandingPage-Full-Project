@@ -352,12 +352,17 @@ function applyAllMods() {
       }
     });
     
+    // Check and apply player log password reset alert uniformly
+    checkAndApplyPlayerLogAlert();
+    
     applyCustomWords();
     applySpiderWebLocks();
     setupAutoCopy();
     setupSkaterCombos();
     setupAlertOverride();
     checkProfileEditPage();
+    setupPlayerEditValidationWatcher();
+    checkAndApplyScreenshotReminder();
   };
 
   if (document.body) {
@@ -409,6 +414,33 @@ function removeAllMods() {
   document.querySelectorAll('.sa-sticker-note').forEach(el => el.remove());
   // Remove watch badges
   document.querySelectorAll('.sa-watch-badge').forEach(el => el.remove());
+  // Remove player log alerts and reset states
+  document.querySelectorAll('#sa-playerlog-pw-alert, #sa-playerlog-alert-row, .sa-input-alert-tag').forEach(el => el.remove());
+  document.querySelectorAll('.sa-affected-user-danger').forEach(el => {
+    el.classList.remove('sa-affected-user-danger');
+    el.style.removeProperty('background');
+    el.style.removeProperty('background-color');
+    el.style.removeProperty('border');
+    el.style.removeProperty('box-shadow');
+    el.style.removeProperty('color');
+    el.style.removeProperty('font-weight');
+    el.style.removeProperty('outline');
+  });
+  document.querySelectorAll('.sa-pw-reset-row').forEach(el => el.classList.remove('sa-pw-reset-row'));
+  document.querySelectorAll('.sa-pw-reset-badge').forEach(el => el.remove());
+  
+  // Remove screenshot validation reminder elements
+  document.querySelectorAll('#sa-keterangan-badge, #sa-status-sop-alert, #sa-paste-link-btn, #sa-editplayer-pre-alert').forEach(el => el.remove());
+  document.querySelectorAll('.sa-keterangan-danger').forEach(el => {
+    el.classList.remove('sa-keterangan-danger');
+    el.style.removeProperty('background');
+    el.style.removeProperty('background-color');
+    el.style.removeProperty('border');
+    el.style.removeProperty('box-shadow');
+    el.style.removeProperty('color');
+    el.style.removeProperty('font-weight');
+    el.style.removeProperty('outline');
+  });
 }
 
 // ============ INJECT BASE STYLESHEET ============
@@ -939,6 +971,251 @@ function injectStreetArtStylesheet() {
       z-index: 2;
     }
 
+    /* ===== PLAYER LOG PASSWORD RESET DETECTOR ===== */
+    .sa-affected-user-danger {
+      background: #ffccd5 !important;
+      background-color: #ffccd5 !important;
+      border: 3px solid #ff0055 !important;
+      box-shadow: 0 0 16px rgba(255, 0, 85, 0.95), inset 0 0 8px rgba(255, 0, 85, 0.35) !important;
+      color: #990022 !important;
+      font-weight: 900 !important;
+      outline: 2px solid #ff0055 !important;
+      animation: sa-input-pulse 1.2s infinite alternate ease-in-out !important;
+    }
+
+    @keyframes sa-input-pulse {
+      0% {
+        box-shadow: 0 0 8px rgba(255, 0, 85, 0.5);
+        border-color: #ff3377;
+      }
+      100% {
+        box-shadow: 0 0 20px rgba(255, 0, 85, 1);
+        border-color: #ff0055;
+      }
+    }
+
+    .sa-input-alert-tag {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 3px 8px;
+      background: linear-gradient(135deg, #ff0055, #c0003c);
+      color: #ffffff !important;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(255, 0, 85, 0.5);
+      animation: sa-badge-blink 1s infinite alternate;
+      vertical-align: middle;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .sa-playerlog-alert-card {
+      margin: 8px auto;
+      width: 100%;
+      max-width: 480px;
+      background: #1a0509;
+      border: 2px solid #ff0055;
+      border-radius: 8px;
+      box-shadow: 0 4px 25px rgba(255, 0, 85, 0.45), inset 0 0 20px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+      font-family: 'Outfit', sans-serif;
+      animation: sa-alert-slide-down 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    @keyframes sa-alert-slide-down {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .sa-alert-hazard-header {
+      background: repeating-linear-gradient(45deg, #ff0055, #ff0055 12px, #80002b 12px, #80002b 24px);
+      color: #ffffff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .sa-alert-hazard-header .sa-alert-title {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-family: 'Bangers', 'Outfit', sans-serif;
+      text-align: center;
+    }
+
+    .sa-alert-hazard-header .sa-alert-icon {
+      font-size: 20px;
+    }
+
+    .sa-alert-body {
+      padding: 14px 18px;
+      color: #ffffff;
+      background: rgba(20, 5, 8, 0.95);
+    }
+
+    .sa-alert-info-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .sa-info-chip {
+      background: #2b0b14;
+      border: 1px solid #ff0055;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      color: #ffb3c6;
+    }
+
+    .sa-info-chip b {
+      color: #ffffff;
+    }
+
+    .sa-info-chip.count {
+      background: #ff0055;
+      color: #ffffff;
+      border-color: #ffffff;
+      font-weight: 900;
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+    }
+
+    .sa-alert-instruction {
+      background: rgba(255, 0, 85, 0.15);
+      border-left: 4px solid #ff0055;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #ffe6eb;
+    }
+
+    .sa-alert-instruction strong {
+      color: #ff3377;
+    }
+
+    .sa-alert-instruction u {
+      text-decoration-color: #ff0055;
+      font-weight: 700;
+    }
+
+    /* Highlight table row */
+    tr.sa-pw-reset-row > td {
+      background: linear-gradient(90deg, rgba(255, 0, 85, 0.35) 0%, rgba(128, 0, 43, 0.25) 100%) !important;
+      border-top: 2px solid #ff0055 !important;
+      border-bottom: 2px solid #ff0055 !important;
+      color: #ffffff !important;
+    }
+
+    .sa-pw-reset-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff0055, #c0003c);
+      color: #ffffff !important;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 8px;
+      border: 1px solid #ff80a6;
+      box-shadow: 0 2px 6px rgba(255, 0, 85, 0.5);
+      animation: sa-badge-blink 1s infinite alternate;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    @keyframes sa-badge-blink {
+      0% { opacity: 0.85; transform: scale(0.97); }
+      100% { opacity: 1; transform: scale(1.03); }
+    }
+
+    /* ===== PENGINGAT LINK SCREENSHOT VALIDASI REKENING ===== */
+    .sa-keterangan-danger {
+      background: #fff0f3 !important;
+      background-color: #fff0f3 !important;
+      border: 3px solid #ff0055 !important;
+      box-shadow: 0 0 16px rgba(255, 0, 85, 0.95), inset 0 0 8px rgba(255, 0, 85, 0.25) !important;
+      color: #990022 !important;
+      font-weight: 700 !important;
+      outline: 2px solid #ff0055 !important;
+      animation: sa-input-pulse 1.2s infinite alternate ease-in-out !important;
+    }
+
+    .sa-keterangan-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 3px 8px;
+      background: linear-gradient(135deg, #ff0055, #c0003c);
+      color: #ffffff !important;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(255, 0, 85, 0.5);
+      animation: sa-badge-blink 1s infinite alternate;
+      vertical-align: middle;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .sa-status-sop-alert {
+      margin: 12px 0;
+      width: 100%;
+      background: #1a0509;
+      border: 2px solid #ff0055;
+      border-radius: 8px;
+      box-shadow: 0 4px 25px rgba(255, 0, 85, 0.45), inset 0 0 20px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+      font-family: 'Outfit', sans-serif;
+      animation: sa-alert-slide-down 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .sa-paste-clipboard-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, #00aa13, #00770d);
+      color: #ffffff !important;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid #33cc44;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 170, 19, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .sa-paste-clipboard-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 170, 19, 0.7);
+      background: linear-gradient(135deg, #00c917, #00880e);
+    }
+
+    .sa-editplayer-pre-submit-alert {
+      margin: 10px 0;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #380813, #1f0309);
+      border: 2px solid #ff0055;
+      border-radius: 6px;
+      color: #ffccd5;
+      font-size: 13px;
+      font-family: 'Outfit', sans-serif;
+      box-shadow: 0 0 14px rgba(255, 0, 85, 0.4);
+      animation: sa-alert-slide-down 0.3s ease;
     }
   `;
 }
@@ -1452,6 +1729,804 @@ function applyTransactionStatusColors(doc = document) {
   });
 }
 
+// ============ PLAYER LOG PASSWORD RESET DETECTOR ============
+function cleanUpPlayerLogAlerts(docs) {
+  const targetDocs = Array.isArray(docs) ? docs : [docs || document];
+  for (const d of targetDocs) {
+    if (!d) continue;
+    // Clean up any inputs that might have gotten the warning styles
+    d.querySelectorAll('.sa-affected-user-danger, input').forEach(el => {
+      if (el.classList.contains('sa-affected-user-danger') || el.style.border?.includes('#ff0055') || (el.style.borderColor && el.style.borderColor.includes('255, 0, 85'))) {
+        el.classList.remove('sa-affected-user-danger');
+        el.style.removeProperty('background');
+        el.style.removeProperty('background-color');
+        el.style.removeProperty('border');
+        el.style.removeProperty('box-shadow');
+        el.style.removeProperty('color');
+        el.style.removeProperty('font-weight');
+        el.style.removeProperty('outline');
+      }
+    });
+    d.querySelectorAll('#sa-input-alert-tag, #sa-playerlog-pw-alert, #sa-playerlog-alert-row, .sa-pw-reset-badge').forEach(el => el.remove());
+    d.querySelectorAll('tr.sa-pw-reset-row').forEach(r => r.classList.remove('sa-pw-reset-row'));
+  }
+}
+
+function findAffectedUserInput(d) {
+  if (!d) return null;
+
+  // Strategy 1: Find <tr> whose text specifically has 'affected' and EXPLICITLY NOT 'operator'
+  const rows = Array.from(d.querySelectorAll('tr'));
+  for (const tr of rows) {
+    const text = (tr.textContent || '').replace(/[\u00a0\s]+/g, ' ').toLowerCase();
+    if (text.includes('affected') && !text.includes('operator')) {
+      const inp = tr.querySelector('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"])');
+      if (inp) return inp;
+    }
+  }
+
+  // Strategy 2: Find td, th, label, span, or div containing 'affected' and NOT 'operator'
+  const cells = Array.from(d.querySelectorAll('td, th, label, span, div'));
+  for (const el of cells) {
+    const text = (el.textContent || '').replace(/[\u00a0\s]+/g, ' ').trim().toLowerCase();
+    if ((text === 'affected user' || text.startsWith('affected user') || text.includes('affected')) && !text.includes('operator')) {
+      if (el.nextElementSibling) {
+        const inp = el.nextElementSibling.tagName === 'INPUT' ? el.nextElementSibling : el.nextElementSibling.querySelector('input:not([type="hidden"]):not([type="submit"]):not([type="button"])');
+        if (inp) {
+          const rowText = (inp.closest('tr')?.textContent || inp.name || inp.id || '').toLowerCase();
+          if (!rowText.includes('operator')) return inp;
+        }
+      }
+      const tr = el.closest('tr, .form-group, div');
+      if (tr) {
+        const inp = tr.querySelector('input:not([type="hidden"]):not([type="submit"]):not([type="button"])');
+        if (inp) {
+          const rowText = (inp.closest('tr')?.textContent || inp.name || inp.id || '').toLowerCase();
+          if (!rowText.includes('operator')) return inp;
+        }
+      }
+    }
+  }
+
+  // Strategy 3: Check attribute name/id specifically having 'affected'
+  const direct = d.querySelector('input[name*="affected" i], input[id*="affected" i], input[placeholder*="affected" i]');
+  if (direct) {
+    const directText = (direct.name || direct.id || '').toLowerCase();
+    if (!directText.includes('operator')) return direct;
+  }
+
+  // Strategy 4: In filter form, the row immediately following 'Operator'
+  for (const tr of rows) {
+    const text = (tr.textContent || '').replace(/[\u00a0\s]+/g, ' ').toLowerCase();
+    if (text.includes('operator') && !text.includes('affected')) {
+      const nextTr = tr.nextElementSibling;
+      if (nextTr) {
+        const inp = nextTr.querySelector('input:not([type="hidden"]):not([type="submit"]):not([type="button"])');
+        if (inp) {
+          const checkText = (inp.closest('tr')?.textContent || inp.name || inp.id || '').toLowerCase();
+          if (!checkText.includes('operator')) return inp;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+function checkAndApplyPlayerLogAlert() {
+  if (!settings || !settings.isEnabled) return;
+
+  // 1. Gather all accessible documents (top document + any accessible iframes)
+  const allDocs = [document];
+  try {
+    if (window.top && window.top.document && !allDocs.includes(window.top.document)) {
+      allDocs.push(window.top.document);
+    }
+  } catch (e) {}
+
+  document.querySelectorAll('iframe').forEach(iframe => {
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (iframeDoc && iframeDoc.body && !allDocs.includes(iframeDoc)) {
+        allDocs.push(iframeDoc);
+      }
+    } catch (e) {}
+  });
+
+  // 2. Find the Affected User input across all docs
+  let affectedInput = null;
+  let formDoc = null;
+  for (const doc of allDocs) {
+    const inp = findAffectedUserInput(doc);
+    if (inp) {
+      affectedInput = inp;
+      formDoc = doc;
+      break;
+    }
+  }
+
+  // If no Affected User input exists on page: clean up and exit
+  if (!affectedInput) {
+    cleanUpPlayerLogAlerts(allDocs);
+    return;
+  }
+
+  // Bind reactive listeners to input so changes instantly trigger check
+  if (!affectedInput._saPwAlertBound) {
+    affectedInput._saPwAlertBound = true;
+    const triggerUpdate = () => {
+      clearTimeout(affectedInput._saTimer);
+      affectedInput._saTimer = setTimeout(checkAndApplyPlayerLogAlert, 100);
+    };
+    affectedInput.addEventListener('input', triggerUpdate);
+    affectedInput.addEventListener('change', triggerUpdate);
+    affectedInput.addEventListener('keyup', triggerUpdate);
+    affectedInput.addEventListener('paste', triggerUpdate);
+  }
+
+  // 3. User constraint: MUST ONLY FUNCTION FOR AFFECTED USER
+  // If Affected User input is empty, feature MUST NOT function at all!
+  const userValue = (affectedInput.value || '').trim();
+  if (!userValue) {
+    cleanUpPlayerLogAlerts(allDocs);
+    return;
+  }
+
+  // 4. Compute date matching criteria
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const todayISO = `${yyyy}-${mm}-${dd}`;
+  const todayVariants = [
+    todayISO,
+    `${dd}-${mm}-${yyyy}`,
+    `${yyyy}/${mm}/${dd}`,
+    `${dd}/${mm}/${yyyy}`,
+    `${mm}-${dd}`,
+    `${dd}-${mm}`
+  ];
+
+  // Also include date from Tanggal Awal / Tanggal akhir if filled in the form
+  for (const doc of allDocs) {
+    doc.querySelectorAll('input').forEach(inp => {
+      const val = (inp.value || '').trim();
+      if (/^\d{4}[-/]\d{2}[-/]\d{2}$/.test(val) && !todayVariants.includes(val)) {
+        todayVariants.push(val);
+      }
+    });
+  }
+
+  // 5. Scan all rows across allDocs for password reset of this specific user on today
+  const cleanUserVal = userValue.toLowerCase();
+  const matchingRows = [];
+  let detectedPlayerLogTable = null;
+
+  for (const doc of allDocs) {
+    const rows = doc.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = Array.from(row.querySelectorAll('td'));
+      if (cells.length < 4) return;
+
+      const rowText = row.textContent.toLowerCase();
+
+      // Check if row matches this user
+      let matchesUser = rowText.includes(cleanUserVal);
+      if (!matchesUser && cells.length > 5) {
+        matchesUser = cells[5].textContent.trim().toLowerCase() === cleanUserVal;
+      }
+      if (!matchesUser) return;
+
+      // Check if row records password reset (ID or EN)
+      const isPwReset = /perbarui\s*pemain\s*:\s*password/i.test(rowText) ||
+                        /update\s*player\s*:\s*password/i.test(rowText) ||
+                        (rowText.includes('password') && (rowText.includes('perbarui') || rowText.includes('update') || rowText.includes('reset') || rowText.includes('ganti') || rowText.includes('pemain') || rowText.includes('player')));
+      if (!isPwReset) return;
+
+      // Check if date is today
+      const isToday = todayVariants.some(variant => rowText.includes(variant));
+      if (!isToday) return;
+
+      detectedPlayerLogTable = row.closest('table');
+
+      let timeStr = '';
+      let dateStr = '';
+      let operatorStr = '';
+      let affectedUserStr = '';
+      let detailCell = null;
+
+      cells.forEach(cell => {
+        const cellText = (cell.textContent || '').trim();
+        if (/perbarui\s*pemain/i.test(cellText) || /update\s*player/i.test(cellText) || /password/i.test(cellText)) {
+          detailCell = cell;
+        }
+        if (/\d{4}[-/]\d{2}[-/]\d{2}\s+\d{2}:\d{2}:\d{2}/.test(cellText)) {
+          timeStr = cellText;
+        } else if (/\d{4}[-/]\d{2}[-/]\d{2}/.test(cellText) && !dateStr) {
+          dateStr = cellText;
+        }
+      });
+
+      if (cells.length >= 6) {
+        if (!timeStr && cells[2]) timeStr = cells[2].textContent.trim();
+        if (!operatorStr && cells[3]) operatorStr = cells[3].textContent.trim();
+        if (!detailCell && cells[4]) detailCell = cells[4];
+        if (!affectedUserStr && cells[5]) affectedUserStr = cells[5].textContent.trim();
+      }
+
+      matchingRows.push({
+        doc: doc,
+        row: row,
+        time: timeStr || dateStr || todayISO,
+        operator: operatorStr || 'OPERATOR',
+        affectedUser: affectedUserStr || userValue,
+        detailCell: detailCell
+      });
+    });
+  }
+
+  // 6. If matching rows exist, show alert; otherwise clean up
+  const targetDoc = formDoc || affectedInput.ownerDocument || document;
+  const existingAlert = targetDoc.getElementById('sa-playerlog-pw-alert');
+  const existingInputTag = targetDoc.getElementById('sa-input-alert-tag');
+
+  if (matchingRows.length > 0) {
+    const latest = matchingRows[0];
+    const userDisplay = latest.affectedUser || userValue;
+
+    // 1. Highlight ONLY Affected User input
+    affectedInput.classList.add('sa-affected-user-danger');
+    affectedInput.style.setProperty('background', '#ffccd5', 'important');
+    affectedInput.style.setProperty('background-color', '#ffccd5', 'important');
+    affectedInput.style.setProperty('border', '3px solid #ff0055', 'important');
+    affectedInput.style.setProperty('box-shadow', '0 0 16px rgba(255, 0, 85, 0.95), inset 0 0 8px rgba(255, 0, 85, 0.35)', 'important');
+    affectedInput.style.setProperty('color', '#990022', 'important');
+    affectedInput.style.setProperty('font-weight', '900', 'important');
+    affectedInput.style.setProperty('outline', '2px solid #ff0055', 'important');
+
+    // Add badge tag beside Affected User input
+    if (!existingInputTag && affectedInput.parentNode) {
+      const tag = targetDoc.createElement('span');
+      tag.id = 'sa-input-alert-tag';
+      tag.className = 'sa-input-alert-tag';
+      tag.innerHTML = '🚨 PERNAH RESET HARI INI!';
+      if (affectedInput.nextSibling) {
+        affectedInput.parentNode.insertBefore(tag, affectedInput.nextSibling);
+      } else {
+        affectedInput.parentNode.appendChild(tag);
+      }
+    }
+
+    // 2. Highlight matching rows in the table
+    matchingRows.forEach(item => {
+      item.row.classList.add('sa-pw-reset-row');
+      if (item.detailCell && !item.detailCell.querySelector('.sa-pw-reset-badge')) {
+        const badge = item.doc.createElement('span');
+        badge.className = 'sa-pw-reset-badge';
+        badge.innerHTML = '⚠️ RESET HARI INI';
+        item.detailCell.appendChild(badge);
+      }
+    });
+
+    // 3. Render or update the Warning Banner directly below Submit button
+    let alertCard = existingAlert;
+    if (!alertCard) {
+      alertCard = targetDoc.createElement('div');
+      alertCard.id = 'sa-playerlog-pw-alert';
+      alertCard.className = 'sa-playerlog-alert-card';
+    }
+
+    alertCard.innerHTML = `
+      <div class="sa-alert-hazard-header">
+        <span class="sa-alert-icon">🚨</span>
+        <span class="sa-alert-title">PERINGATAN: SUDAH ADA RIWAYAT RESET PASSWORD HARI INI!</span>
+        <span class="sa-alert-icon">⚠️</span>
+      </div>
+      <div class="sa-alert-body">
+        <div class="sa-alert-info-row">
+          <span class="sa-info-chip"><b>👤 User:</b> <span class="sa-chip-val">${escapeHtml(userDisplay)}</span></span>
+          <span class="sa-info-chip"><b>🕒 Jam Terakhir:</b> <span class="sa-chip-val">${escapeHtml(latest.time)}</span></span>
+          <span class="sa-info-chip"><b>👨‍💻 Operator:</b> <span class="sa-chip-val">${escapeHtml(latest.operator)}</span></span>
+          <span class="sa-info-chip count"><b>⚡ Total Hari Ini:</b> ${matchingRows.length}x</span>
+        </div>
+        <div class="sa-alert-instruction">
+          🛑 <strong>SOP WAJIB OPERATOR:</strong> Akun ini <u>sudah pernah di-reset password pada hari ini (${todayISO})</u>.<br>
+          <strong>WAJIB MINTA DATA PENDUKUNG LENGKAP</strong> (bukti deposit terakhir, mutasi rekening terdaftar, nomor WhatsApp aktif) sebelum memproses permintaan baru!
+        </div>
+      </div>
+    `;
+
+    if (!alertCard.isConnected) {
+      const allButtons = Array.from(targetDoc.querySelectorAll('input[type="submit"], button, input[type="button"]'));
+      const submitBtn = allButtons.find(b => {
+        const v = (b.value || b.textContent || '').trim().toLowerCase();
+        return v === 'submit' || v === 'cari' || v === 'filter';
+      }) || (affectedInput ? affectedInput.closest('form')?.querySelector('input[type="submit"], button') : null);
+
+      let inserted = false;
+      if (submitBtn) {
+        const submitRow = submitBtn.closest('tr');
+        if (submitRow && submitRow.parentElement) {
+          let alertRow = targetDoc.getElementById('sa-playerlog-alert-row');
+          if (!alertRow) {
+            alertRow = targetDoc.createElement('tr');
+            alertRow.id = 'sa-playerlog-alert-row';
+            const alertTd = targetDoc.createElement('td');
+            alertTd.colSpan = 10;
+            alertTd.style.textAlign = 'center';
+            alertTd.style.padding = '10px 0 5px 0';
+            alertTd.appendChild(alertCard);
+            alertRow.appendChild(alertTd);
+          }
+          submitRow.parentNode.insertBefore(alertRow, submitRow.nextSibling);
+          inserted = true;
+        } else if (submitBtn.parentElement) {
+          submitBtn.parentElement.appendChild(alertCard);
+          inserted = true;
+        }
+      }
+
+      if (!inserted && affectedInput) {
+        const filterForm = affectedInput.closest('form') || affectedInput.closest('table');
+        if (filterForm && filterForm.parentNode) {
+          filterForm.parentNode.insertBefore(alertCard, filterForm.nextSibling);
+          inserted = true;
+        }
+      }
+
+      if (!inserted && detectedPlayerLogTable && detectedPlayerLogTable.parentNode) {
+        detectedPlayerLogTable.parentNode.insertBefore(alertCard, detectedPlayerLogTable);
+        inserted = true;
+      }
+    }
+
+    // Bind submit button / form listener for subsequent clicks
+    if (!targetDoc._saSubmitBound) {
+      targetDoc._saSubmitBound = true;
+      targetDoc.addEventListener('click', (e) => {
+        const btn = e.target.closest('input[type="submit"], button, input[type="button"]');
+        if (btn) {
+          const v = (btn.value || btn.textContent || '').trim().toLowerCase();
+          if (v === 'submit' || v === 'cari' || v === 'filter') {
+            [150, 400, 800, 1500, 2500].forEach(delay => {
+              setTimeout(checkAndApplyPlayerLogAlert, delay);
+            });
+          }
+        }
+      }, true);
+    }
+  } else {
+    // No matching reset today for this user -> clean up all alert states
+    cleanUpPlayerLogAlerts(allDocs);
+  }
+}
+
+// Ensure periodic checks for Player Log page so dynamic AJAX or table changes are immediately caught
+if (!window._saPlayerLogInterval) {
+  window._saPlayerLogInterval = setInterval(() => {
+    try {
+      if (document.body && (location.href.includes('log-comments') || findAffectedUserInput(document))) {
+        checkAndApplyPlayerLogAlert();
+      }
+    } catch (e) {}
+  }, 600);
+}
+
+// ============ PENGINGAT LINK SCREENSHOT VALIDASI REKENING (EDIT PLAYER LIST & STATUS) ============
+function setupPlayerEditValidationWatcher() {
+  if (!window.location.href.includes('player-edit')) return;
+  if (window._saEditPlayerWatcherInit) return;
+  window._saEditPlayerWatcherInit = true;
+
+  const initTimer = setInterval(() => {
+    // 1. Get UserId
+    let userId = '';
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      userId = urlParams.get('userKey') || urlParams.get('userId') || urlParams.get('user') || '';
+    } catch(e) {}
+
+    const rows = Array.from(document.querySelectorAll('tr'));
+    
+    let bankField = null;
+    let namaRekField = null;
+    let noRekField = null;
+    let submitBtn = null;
+
+    rows.forEach(tr => {
+      const text = (tr.textContent || '').replace(/[\u00a0\s]+/g, ' ').trim().toLowerCase();
+      
+      if (!userId && (text.includes('userid') || text.includes('user id'))) {
+        const inp = tr.querySelector('input');
+        if (inp && inp.value) userId = inp.value.trim();
+        else {
+          const tds = tr.querySelectorAll('td');
+          if (tds.length > 1) userId = tds[1].textContent.trim();
+        }
+      }
+
+      if (text.includes('bank') && (text.includes('nama') || text.includes('rekening'))) {
+        bankField = tr.querySelector('select, input:not([type="hidden"])');
+      } else if (text.includes('nama rekening') && !text.includes('bank')) {
+        namaRekField = tr.querySelector('input:not([type="hidden"])');
+      } else if (text.includes('nomor rekening') || text.includes('no rekening') || text.includes('no rek')) {
+        noRekField = tr.querySelector('input:not([type="hidden"])');
+      }
+    });
+
+    if (!bankField) bankField = document.querySelector('select[name*="bank" i], input[name*="bank" i]');
+    if (!namaRekField) namaRekField = document.querySelector('input[name*="acc_name" i], input[name*="holder" i], input[name*="nama_rek" i]');
+    if (!noRekField) noRekField = document.querySelector('input[name*="acc_no" i], input[name*="rekening" i], input[name*="no_rek" i]');
+
+    submitBtn = document.querySelector('input[type="submit"], button[type="submit"]') || 
+                Array.from(document.querySelectorAll('button, input[type="button"]')).find(b => {
+                  const val = (b.value || b.textContent || '').trim().toLowerCase();
+                  return val === 'submit' || val.includes('simpan');
+                });
+
+    if (!bankField || !namaRekField || !noRekField || !submitBtn) {
+      return; // Still loading
+    }
+
+    clearInterval(initTimer);
+
+    // Initial values
+    const initialBank = (bankField.value || '').trim();
+    const initialNama = (namaRekField.value || '').trim();
+    const initialNoRek = (noRekField.value || '').trim();
+
+    const isChanged = () => {
+      const curBank = (bankField.value || '').trim();
+      const curNama = (namaRekField.value || '').trim();
+      const curNoRek = (noRekField.value || '').trim();
+      return (initialBank && curBank !== initialBank) || 
+             (initialNama && curNama !== initialNama) || 
+             (initialNoRek && curNoRek !== initialNoRek);
+    };
+
+    const updatePreSubmitAlert = () => {
+      let alertBox = document.getElementById('sa-editplayer-pre-alert');
+      if (isChanged()) {
+        if (!alertBox) {
+          alertBox = document.createElement('div');
+          alertBox.id = 'sa-editplayer-pre-alert';
+          alertBox.className = 'sa-editplayer-pre-submit-alert';
+          const submitRow = submitBtn.closest('tr') || submitBtn.parentElement;
+          if (submitRow && submitRow.parentElement) {
+            submitRow.parentElement.insertBefore(alertBox, submitRow);
+          } else {
+            submitBtn.insertAdjacentElement('beforebegin', alertBox);
+          }
+        }
+        alertBox.innerHTML = `
+          <div style="font-weight: 900; color: #ff0055; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; font-size: 14px;">
+            <span>🚨</span> PERUBAHAN DATA REKENING TERDETEKSI!
+          </div>
+          <div style="font-size: 12px; line-height: 1.4; color: #ffe6eb;">
+            <strong>SOP WAJIB OPERATOR:</strong> Anda mengubah data rekening pemain (${escapeHtml(userId || 'Pemain')}).<br>
+            Setelah menekan tombol <strong>Submit</strong>, Anda <u>WAJIB</u> melampirkan <strong>LINK SCREENSHOT VALIDASI</strong> (seperti <code>https://prnt.sc/...</code>) pada kolom <u>Keterangan</u> di Status Pemain!
+          </div>
+        `;
+      } else {
+        if (alertBox) alertBox.remove();
+      }
+    };
+
+    [bankField, namaRekField, noRekField].forEach(field => {
+      field.addEventListener('input', updatePreSubmitAlert);
+      field.addEventListener('change', updatePreSubmitAlert);
+    });
+
+    const handleSavePending = () => {
+      if (isChanged()) {
+        const reminderData = {
+          userId: userId || 'Pemain',
+          oldData: { bank: initialBank, nama: initialNama, noRek: initialNoRek },
+          newData: { bank: (bankField.value || '').trim(), nama: (namaRekField.value || '').trim(), noRek: (noRekField.value || '').trim() },
+          changedAt: Date.now(),
+          completed: false
+        };
+        window.localStorage.setItem('sa_pending_screenshot', JSON.stringify(reminderData));
+        try {
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'SA_SCREENSHOT_PENDING', data: reminderData }, '*');
+          }
+        } catch(e) {}
+      }
+    };
+
+    submitBtn.addEventListener('click', handleSavePending);
+    const form = submitBtn.closest('form');
+    if (form) form.addEventListener('submit', handleSavePending);
+
+  }, 300);
+
+  setTimeout(() => clearInterval(initTimer), 10000);
+}
+
+function findStatusSection(doc = document) {
+  if (!doc || !doc.body) return null;
+
+  const textareas = Array.from(doc.querySelectorAll('textarea'));
+  for (const ta of textareas) {
+    const tr = ta.closest('tr');
+    const trText = (tr?.textContent || '').toLowerCase();
+    const isKeteranganRow = trText.includes('keterangan') || trText.includes('remark') || trText.includes('catatan');
+    
+    const table = ta.closest('table');
+    const form = ta.closest('form') || table || ta.parentElement;
+    const formText = (form?.textContent || '').toLowerCase();
+    const isStatusForm = formText.includes('status') || formText.includes('change status') || formText.includes('validasi');
+
+    if (isKeteranganRow || isStatusForm) {
+      let changeBtn = null;
+      if (form) {
+        changeBtn = Array.from(form.querySelectorAll('button, input[type="submit"], input[type="button"]')).find(b => {
+          const val = (b.value || b.textContent || '').trim().toLowerCase();
+          return val.includes('status') || val.includes('change');
+        });
+      }
+      if (!changeBtn && table && table.parentElement) {
+        changeBtn = Array.from(table.parentElement.querySelectorAll('button, input[type="submit"], input[type="button"]')).find(b => {
+          const val = (b.value || b.textContent || '').trim().toLowerCase();
+          return val.includes('status') || val.includes('change');
+        });
+      }
+      return {
+        textarea: ta,
+        tr: tr || ta.parentElement,
+        table: table || form,
+        form: form,
+        changeStatusBtn: changeBtn
+      };
+    }
+  }
+
+  // Fallback check: find by label or adjacent cell containing 'keterangan'
+  const labels = Array.from(doc.querySelectorAll('td, th, label, div, span'));
+  for (const el of labels) {
+    const text = (el.textContent || '').trim().toLowerCase();
+    if (text === 'keterangan' || text.startsWith('keterangan')) {
+      const container = el.closest('tr') || el.parentElement;
+      if (container) {
+        const ta = container.querySelector('textarea');
+        if (ta) {
+          const table = ta.closest('table');
+          const form = ta.closest('form') || table;
+          const changeBtn = form ? Array.from(form.querySelectorAll('button, input[type="submit"], input[type="button"]')).find(b => {
+            const val = (b.value || b.textContent || '').trim().toLowerCase();
+            return val.includes('status') || val.includes('change');
+          }) : null;
+          return { textarea: ta, tr: container, table: table || form, form: form, changeStatusBtn: changeBtn };
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+function cleanUpScreenshotReminder(doc = document) {
+  if (!doc) return;
+  doc.querySelectorAll('#sa-keterangan-badge, #sa-status-sop-alert, #sa-paste-link-btn, #sa-editplayer-pre-alert').forEach(el => el.remove());
+  doc.querySelectorAll('.sa-keterangan-danger').forEach(el => {
+    el.classList.remove('sa-keterangan-danger');
+    el.style.removeProperty('background');
+    el.style.removeProperty('background-color');
+    el.style.removeProperty('border');
+    el.style.removeProperty('box-shadow');
+    el.style.removeProperty('color');
+    el.style.removeProperty('font-weight');
+    el.style.removeProperty('outline');
+  });
+}
+
+function containsScreenshotUrl(text) {
+  if (!text) return false;
+  return /(?:https?:\/\/|prnt\.sc\/|imgur\.com\/|drive\.google\.com\/|ibb\.co\/|gyazo\.com\/|snipboard\.io\/)[^\s]+/i.test(text);
+}
+
+function checkAndApplyScreenshotReminder() {
+  if (!settings || !settings.isEnabled) return;
+
+  let reminder = null;
+  try {
+    const raw = window.localStorage.getItem('sa_pending_screenshot');
+    if (raw) reminder = JSON.parse(raw);
+  } catch(e) {}
+
+  if (!reminder || reminder.completed || (Date.now() - reminder.changedAt > 24 * 60 * 60 * 1000)) {
+    cleanUpScreenshotReminder(document);
+    return;
+  }
+
+  const statusInfo = findStatusSection(document);
+  if (!statusInfo || !statusInfo.textarea) return;
+
+  const ta = statusInfo.textarea;
+  const currentVal = (ta.value || '').trim();
+  const hasUrl = containsScreenshotUrl(currentVal);
+
+  // 1. Highlight textarea
+  if (!ta.classList.contains('sa-keterangan-danger')) {
+    ta.classList.add('sa-keterangan-danger');
+  }
+
+  // 2. Badge on Keterangan
+  let badge = document.getElementById('sa-keterangan-badge');
+  if (!badge && statusInfo.tr) {
+    badge = document.createElement('span');
+    badge.id = 'sa-keterangan-badge';
+    badge.className = 'sa-keterangan-badge';
+    badge.innerHTML = '🚨 WAJIB INPUT LINK SCREENSHOT VALIDASI!';
+    const labelCell = statusInfo.tr.querySelector('td, th, label') || statusInfo.tr;
+    if (labelCell) labelCell.appendChild(badge);
+  }
+
+  // If user already pasted a URL, update visual feedback
+  if (hasUrl) {
+    ta.style.setProperty('border', '3px solid #00aa13', 'important');
+    ta.style.setProperty('box-shadow', '0 0 16px rgba(0, 170, 19, 0.8)', 'important');
+    if (badge) {
+      badge.style.background = 'linear-gradient(135deg, #00aa13, #00770d)';
+      badge.innerHTML = '✅ LINK TERDETEKSI! KLIK CHANGE STATUS UNTUK MENYIMPAN';
+    }
+  } else {
+    ta.style.removeProperty('border');
+    ta.style.removeProperty('box-shadow');
+    if (badge) {
+      badge.style.removeProperty('background');
+      badge.innerHTML = '🚨 WAJIB INPUT LINK SCREENSHOT VALIDASI!';
+    }
+  }
+
+  // 3. Render SOP Alert Banner above status table/form
+  let alertBox = document.getElementById('sa-status-sop-alert');
+  if (!alertBox) {
+    alertBox = document.createElement('div');
+    alertBox.id = 'sa-status-sop-alert';
+    alertBox.className = 'sa-status-sop-alert';
+    const insertTarget = statusInfo.table || statusInfo.form;
+    if (insertTarget && insertTarget.parentElement) {
+      insertTarget.parentElement.insertBefore(alertBox, insertTarget);
+    }
+  }
+
+  const userDisplay = reminder.userId || 'Pemain';
+  const newRekText = [reminder.newData?.bank, reminder.newData?.nama, reminder.newData?.noRek].filter(Boolean).join(' - ');
+
+  alertBox.innerHTML = `
+    <div class="sa-alert-hazard-header">
+      <span class="sa-alert-icon">🚨</span>
+      <span class="sa-alert-title">PENGINGAT SOP: PERUBAHAN DATA REKENING PEMAIN (${escapeHtml(userDisplay)})</span>
+      <span class="sa-alert-icon">⚠️</span>
+    </div>
+    <div class="sa-alert-body">
+      <div class="sa-alert-info-row">
+        <span class="sa-info-chip"><b>👤 User:</b> <span class="sa-chip-val">${escapeHtml(userDisplay)}</span></span>
+        ${newRekText ? `<span class="sa-info-chip"><b>🏦 Rekening Baru:</b> <span class="sa-chip-val">${escapeHtml(newRekText)}</span></span>` : ''}
+        <span class="sa-info-chip count">⚠️ Belum Ada Link Validasi</span>
+      </div>
+      <div class="sa-alert-instruction">
+        🛑 <strong>SOP WAJIB OPERATOR:</strong> Data rekening pemain baru saja diperbarui di <em>Edit Player List</em>.<br>
+        <strong>WAJIB MELAMPIRKAN LINK SCREENSHOT HASIL VALIDASI</strong> (contoh: <code>https://prnt.sc/...</code>, <code>https://imgur.com/...</code>, atau link Google Drive) pada kolom <u>Keterangan</u> di bawah ini lalu klik <strong>Change Status</strong>!
+      </div>
+    </div>
+  `;
+
+  // 4. Button [ 📋 Tempel Link dari Clipboard ]
+  if (!document.getElementById('sa-paste-link-btn')) {
+    const pasteBtn = document.createElement('button');
+    pasteBtn.id = 'sa-paste-link-btn';
+    pasteBtn.type = 'button';
+    pasteBtn.className = 'sa-paste-clipboard-btn';
+    pasteBtn.innerHTML = '📋 Tempel Link dari Clipboard';
+    pasteBtn.title = 'Klik untuk otomatis menempelkan link screenshot dari clipboard';
+    pasteBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        const clipText = await navigator.clipboard.readText();
+        if (clipText && clipText.trim()) {
+          const clean = clipText.trim();
+          if (ta.value.trim()) {
+            ta.value += '\n' + clean;
+          } else {
+            ta.value = clean;
+          }
+          ta.dispatchEvent(new Event('input', { bubbles: true }));
+          ta.dispatchEvent(new Event('change', { bubbles: true }));
+          showStreetArtAlert('Link berhasil ditempel dari clipboard!', 'success');
+        } else {
+          showStreetArtAlert('Clipboard kosong atau tidak berisi teks URL!', 'error');
+        }
+      } catch(err) {
+        ta.focus();
+        showStreetArtAlert('Gunakan Ctrl+V untuk menempelkan link langsung.', 'error');
+      }
+    });
+
+    if (ta.nextSibling) {
+      ta.parentNode.insertBefore(pasteBtn, ta.nextSibling);
+    } else {
+      ta.parentNode.appendChild(pasteBtn);
+    }
+  }
+
+  // 5. Auto-scroll to status section
+  if (!ta._saAutoScrolled) {
+    ta._saAutoScrolled = true;
+    setTimeout(() => {
+      ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      ta.focus();
+    }, 400);
+  }
+
+  // 6. Reactive input check on textarea
+  if (!ta._saWatcherBound) {
+    ta._saWatcherBound = true;
+    ta.addEventListener('input', () => {
+      clearTimeout(ta._saWatchTimer);
+      ta._saWatchTimer = setTimeout(checkAndApplyScreenshotReminder, 150);
+    });
+  }
+
+  // 7. Intercept Change Status button click
+  const changeBtn = statusInfo.changeStatusBtn;
+  if (changeBtn && !changeBtn._saSopBound) {
+    changeBtn._saSopBound = true;
+    changeBtn.addEventListener('click', (e) => {
+      const val = (ta.value || '').trim();
+      const validUrl = containsScreenshotUrl(val);
+      if (validUrl) {
+        // Link exists! Clear reminder
+        window.localStorage.removeItem('sa_pending_screenshot');
+        cleanUpScreenshotReminder(document);
+        showStreetArtAlert('💥 BOOYAH! Link validasi berhasil disimpan!', 'success');
+      } else {
+        // Warning: Link not present
+        const proceed = window.confirm(
+          '🚨 PERINGATAN SOP:\n\n' +
+          'Anda belum melampirkan LINK SCREENSHOT VALIDASI di kolom Keterangan!\n' +
+          '(Contoh link yang wajib dilampirkan: https://prnt.sc/...)\n\n' +
+          'Apakah Anda yakin ingin tetap menyimpan status tanpa link validasi?'
+        );
+        if (!proceed) {
+          e.preventDefault();
+          e.stopPropagation();
+          ta.focus();
+          return false;
+        } else {
+          window.localStorage.removeItem('sa_pending_screenshot');
+          cleanUpScreenshotReminder(document);
+        }
+      }
+    }, true);
+  }
+}
+
+// Cross-window and periodic listeners
+window.addEventListener('storage', (e) => {
+  if (e.key === 'sa_pending_screenshot') {
+    checkAndApplyScreenshotReminder();
+  }
+});
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SA_SCREENSHOT_PENDING') {
+    checkAndApplyScreenshotReminder();
+  }
+});
+
+if (!window._saStatusReminderInterval) {
+  window._saStatusReminderInterval = setInterval(() => {
+    try {
+      if (document.body && (window.location.href.includes('player-name') || window.localStorage.getItem('sa_pending_screenshot'))) {
+        checkAndApplyScreenshotReminder();
+      }
+    } catch(e) {}
+  }, 800);
+}
+
 function applyCustomWords() {
   if (!settings.customWords || settings.customWords.length === 0) return;
 
@@ -1772,6 +2847,8 @@ const observer = new MutationObserver((mutations) => {
       applySensitiveRows();
       applyDateHighlights();
       applyTransactionStatusColors(document);
+      checkAndApplyPlayerLogAlert();
+      checkAndApplyScreenshotReminder();
       applyCustomWords();
       applySpiderWebLocks();
     }, 30);
