@@ -1656,6 +1656,112 @@
         }
     };
 
+    // ╔═══════════════════════════════════════════════╗
+    // ║   DETEKSI SECTION: MY CHATS vs SUPERVISED     ║
+    // ╚═══════════════════════════════════════════════╝
+    const isSupervisedChatItem = (item) => {
+        if (!item) return false;
+        const sidebarRoot = document.querySelector('.css-1cmlcj3') || document.body;
+
+        // 1. Layer Kontainer Induk (Ancestor Search)
+        let curr = item.parentElement;
+        while (curr && curr !== sidebarRoot && curr !== document.body) {
+            const testId = (curr.getAttribute('data-testid') || '').toLowerCase();
+            const aria = (curr.getAttribute('aria-label') || '').toLowerCase();
+            const cls = (curr.className || '').toString().toLowerCase();
+            if (testId.includes('supervised') || aria.includes('supervised') || cls.includes('supervised')) {
+                return true;
+            }
+            if (testId.includes('my-chat') || aria.includes('my chat') || cls.includes('my-chat')) {
+                return false;
+            }
+
+            const text = (curr.innerText || curr.textContent || '');
+            const hasSupervised = /supervised/i.test(text);
+            const hasMyChats = /my\s*chats/i.test(text);
+            if (hasSupervised && !hasMyChats) return true;
+            if (hasMyChats && !hasSupervised) return false;
+            curr = curr.parentElement;
+        }
+
+        // 2. Layer Preceding Header (Document Position)
+        try {
+            const allSectionNodes = Array.from(sidebarRoot.querySelectorAll('*')).filter(el => {
+                if (el.closest('.chat-item') || el.closest('li[data-testid^="chat-item-"]')) return false;
+                const t = (el.innerText || el.textContent || '').trim();
+                if (!t || t.length > 60) return false;
+                const hasSup = /supervised/i.test(t);
+                const hasMy = /my\s*chats/i.test(t);
+                return (hasSup && !hasMy) || (hasMy && !hasSup);
+            });
+
+            let closestHeader = null;
+            for (const h of allSectionNodes) {
+                const pos = h.compareDocumentPosition(item);
+                if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+                    closestHeader = h;
+                }
+            }
+
+            if (closestHeader) {
+                const t = (closestHeader.innerText || closestHeader.textContent || '').trim();
+                if (/supervised/i.test(t)) return true;
+                if (/my\s*chats/i.test(t)) return false;
+            }
+        } catch (e) {}
+
+        // 3. Layer Sibling Traversal
+        try {
+            let targetEl = item.closest('li[data-testid^="chat-item-"]') || item;
+            let p = targetEl.previousElementSibling;
+            while (p) {
+                const pt = (p.innerText || p.textContent || '').trim();
+                if (/supervised/i.test(pt) && !/my\s*chats/i.test(pt)) return true;
+                if (/my\s*chats/i.test(pt) && !/supervised/i.test(pt)) return false;
+                p = p.previousElementSibling;
+            }
+        } catch (e) {}
+
+        // 4. Fallback Karakteristik Teks LiveChat
+        const itemText = (item.innerText || item.textContent || '');
+        if (/transferred\s*[-–]\s*by/i.test(itemText)) return true;
+
+        // 5. Fallback Atribut
+        if (item.closest('[data-testid*="supervised" i], [aria-label*="supervised" i], [class*="supervised" i]')) {
+            return true;
+        }
+
+        return false;
+    };
+
+    const isActiveChatSupervised = () => {
+        const selectedLi = document.querySelector('li[data-testid^="chat-item-"][aria-selected="true"], li[class*="selected"], li[class*="active"]');
+        if (selectedLi) {
+            const item = selectedLi.querySelector('.chat-item') || selectedLi;
+            return isSupervisedChatItem(item);
+        }
+        const activeItem = document.querySelector('.chat-item.active, .chat-item.selected, .chat-item[aria-selected="true"]');
+        if (activeItem) {
+            return isSupervisedChatItem(activeItem);
+        }
+        const m = location.pathname.match(/\/chats\/(?:[^/]+\/)?([^/]+)/i);
+        if (m && m[1]) {
+            const itemById = document.querySelector(`li[data-testid="chat-item-${m[1]}"]`);
+            if (itemById) {
+                return isSupervisedChatItem(itemById.querySelector('.chat-item') || itemById);
+            }
+        }
+        return false;
+    };
+
+    function updateButtonVisibility() {
+        if (isActiveChatSupervised()) {
+            btn.style.display = 'none';
+        } else {
+            btn.style.display = 'inline-flex';
+        }
+    }
+
     // ================= DYNAMIC ISLAND HUD BUTTON (PILAR 4 & 5) =================
     const btn = document.createElement('button');
     btn.id = 'livechat-ss-btn';
@@ -1749,6 +1855,14 @@
 
     applySavedPosition();
     document.body.appendChild(btn);
+    updateButtonVisibility();
+
+    // Observasi perubahan tab/chat untuk sembunyikan atau tampilkan tombol HUD
+    const supervisedObserver = new MutationObserver(() => {
+        updateButtonVisibility();
+    });
+    supervisedObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-selected', 'class'] });
+    setInterval(updateButtonVisibility, 500);
 
     // ================= MAGNETIC DRAGGABLE (PILAR 4) =================
     let isPointerDown = false;
@@ -1886,6 +2000,12 @@
     async function executeSmartCapture() {
         if (isCapturing) return;
 
+        // PENGECUALIAN SUPERVISED: Jangan jalankan capture di chat Supervised
+        if (isActiveChatSupervised()) {
+            Toast.show('warning', 'Fitur Dinonaktifkan', 'Fitur Smart Capture tidak aktif pada chat Supervised.');
+            return;
+        }
+
         const targetElement = document.querySelector(TARGET_SELECTOR);
         if (!targetElement) {
             Toast.show('warning', 'Chat Tidak Ditemukan', 'Silakan pilih atau buka ruang chat terlebih dahulu.');
@@ -1984,6 +2104,11 @@
     // ================= GLOBAL HOTKEY LISTENER: Alt + S (PILAR 5) =================
     window.addEventListener('keydown', (e) => {
         if (e.altKey && (e.key === 's' || e.key === 'S')) {
+            // PENGECUALIAN SUPERVISED: Abaikan shortcut Alt+S jika di chat Supervised
+            if (isActiveChatSupervised()) {
+                console.log('[Hotkey] Alt+S diabaikan karena chat Supervised aktif.');
+                return;
+            }
             e.preventDefault();
             e.stopPropagation();
             console.log('[Hotkey] Alt+S ditekan -> Memulai Smart Capture...');

@@ -399,6 +399,117 @@
         };
     }
 
+    // ╔═══════════════════════════════════════════════╗
+    // ║   DETEKSI SECTION: MY CHATS vs SUPERVISED     ║
+    // ╚═══════════════════════════════════════════════╝
+    const isSupervisedChatItem = (item) => {
+        if (!item) return false;
+        const sidebarRoot = document.querySelector('.css-1cmlcj3') || document.body;
+
+        // 1. Layer Kontainer Induk (Ancestor Search)
+        let curr = item.parentElement;
+        while (curr && curr !== sidebarRoot && curr !== document.body) {
+            const testId = (curr.getAttribute('data-testid') || '').toLowerCase();
+            const aria = (curr.getAttribute('aria-label') || '').toLowerCase();
+            const cls = (curr.className || '').toString().toLowerCase();
+            if (testId.includes('supervised') || aria.includes('supervised') || cls.includes('supervised')) {
+                return true;
+            }
+            if (testId.includes('my-chat') || aria.includes('my chat') || cls.includes('my-chat')) {
+                return false;
+            }
+
+            const text = (curr.innerText || curr.textContent || '');
+            const hasSupervised = /supervised/i.test(text);
+            const hasMyChats = /my\s*chats/i.test(text);
+            if (hasSupervised && !hasMyChats) return true;
+            if (hasMyChats && !hasSupervised) return false;
+            curr = curr.parentElement;
+        }
+
+        // 2. Layer Preceding Header (Document Position)
+        try {
+            const allSectionNodes = Array.from(sidebarRoot.querySelectorAll('*')).filter(el => {
+                if (el.closest('.chat-item') || el.closest('li[data-testid^="chat-item-"]')) return false;
+                const t = (el.innerText || el.textContent || '').trim();
+                if (!t || t.length > 60) return false;
+                const hasSup = /supervised/i.test(t);
+                const hasMy = /my\s*chats/i.test(t);
+                return (hasSup && !hasMy) || (hasMy && !hasSup);
+            });
+
+            let closestHeader = null;
+            for (const h of allSectionNodes) {
+                const pos = h.compareDocumentPosition(item);
+                if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+                    closestHeader = h;
+                }
+            }
+
+            if (closestHeader) {
+                const t = (closestHeader.innerText || closestHeader.textContent || '').trim();
+                if (/supervised/i.test(t)) return true;
+                if (/my\s*chats/i.test(t)) return false;
+            }
+        } catch (e) {}
+
+        // 3. Layer Sibling Traversal
+        try {
+            let targetEl = item.closest('li[data-testid^="chat-item-"]') || item;
+            let p = targetEl.previousElementSibling;
+            while (p) {
+                const pt = (p.innerText || p.textContent || '').trim();
+                if (/supervised/i.test(pt) && !/my\s*chats/i.test(pt)) return true;
+                if (/my\s*chats/i.test(pt) && !/supervised/i.test(pt)) return false;
+                p = p.previousElementSibling;
+            }
+        } catch (e) {}
+
+        // 4. Fallback Karakteristik Teks LiveChat
+        const itemText = (item.innerText || item.textContent || '');
+        if (/transferred\s*[-–]\s*by/i.test(itemText)) return true;
+
+        // 5. Fallback Atribut
+        if (item.closest('[data-testid*="supervised" i], [aria-label*="supervised" i], [class*="supervised" i]')) {
+            return true;
+        }
+
+        return false;
+    };
+
+    const isActiveChatSupervised = () => {
+        const selectedLi = document.querySelector('li[data-testid^="chat-item-"][aria-selected="true"], li[class*="selected"], li[class*="active"]');
+        if (selectedLi) {
+            const item = selectedLi.querySelector('.chat-item') || selectedLi;
+            return isSupervisedChatItem(item);
+        }
+        const activeItem = document.querySelector('.chat-item.active, .chat-item.selected, .chat-item[aria-selected="true"]');
+        if (activeItem) {
+            return isSupervisedChatItem(activeItem);
+        }
+        const m = location.pathname.match(/\/chats\/(?:[^/]+\/)?([^/]+)/i);
+        if (m && m[1]) {
+            const itemById = document.querySelector(`li[data-testid="chat-item-${m[1]}"]`);
+            if (itemById) {
+                return isSupervisedChatItem(itemById.querySelector('.chat-item') || itemById);
+            }
+        }
+        return false;
+    };
+
+    function clearHighlights() {
+        const highlighted = document.querySelectorAll('[data-hl="1"]');
+        highlighted.forEach(span => {
+            const parent = span.parentNode;
+            if (parent) {
+                parent.replaceChild(document.createTextNode(span.textContent), span);
+                parent.normalize();
+            }
+        });
+        const popup = document.getElementById('auto-response-popup');
+        if (popup) popup.style.display = 'none';
+    }
+
     // Cache untuk menghindari re-process elemen yang sama
     const processedElements = new WeakSet();
 
@@ -406,6 +517,12 @@
     // highlight - Optimized & Targeted
     function highlightMessages(targetNodes = null) {
         if (!regex) return;
+
+        // PENGECUALIAN SUPERVISED: Jangan highlight pesan jika chat aktif adalah Supervised
+        if (isActiveChatSupervised()) {
+            clearHighlights();
+            return;
+        }
 
         // Jika targetNodes ada (dari observer), gunakan itu. Jika tidak, cari semua.
         const containers = targetNodes || document.querySelectorAll('[data-testid="visitor-message"], [data-testid="customer-message"], .css-3dz5hy');
@@ -1566,6 +1683,7 @@ border-radius: 6px;
     }
 
     function attachClickToHighlights() {
+        if (isActiveChatSupervised()) return;
         const els = document.querySelectorAll('[class*="hl-"], [data-hl="1"]');
         els.forEach(el => {
             if (el.dataset.hlClickable === '1') return;

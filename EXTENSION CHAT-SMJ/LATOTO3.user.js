@@ -221,6 +221,98 @@
         return id ? `chat-toggle-${id}` : null;
     };
 
+    // ====== Helper Deteksi Bagian Chat (My chats vs Supervised) ======
+    const isSupervisedChatItem = (item) => {
+        if (!item) return false;
+
+        const sidebarRoot = document.querySelector('.css-1cmlcj3') || document.body;
+
+        // 1. Layer Kontainer Induk (Ancestor Search)
+        let curr = item.parentElement;
+        while (curr && curr !== sidebarRoot && curr !== document.body) {
+            const testId = (curr.getAttribute('data-testid') || '').toLowerCase();
+            const aria = (curr.getAttribute('aria-label') || '').toLowerCase();
+            const cls = (curr.className || '').toString().toLowerCase();
+            if (testId.includes('supervised') || aria.includes('supervised') || cls.includes('supervised')) {
+                return true;
+            }
+            if (testId.includes('my-chat') || aria.includes('my chat') || cls.includes('my-chat')) {
+                return false;
+            }
+
+            const text = (curr.innerText || curr.textContent || '');
+            const hasSupervised = /supervised/i.test(text);
+            const hasMyChats = /my\s*chats/i.test(text);
+            if (hasSupervised && !hasMyChats) {
+                return true;
+            }
+            if (hasMyChats && !hasSupervised) {
+                return false;
+            }
+            curr = curr.parentElement;
+        }
+
+        // 2. Layer Preceding Header (Document Position)
+        try {
+            const allSectionNodes = Array.from(sidebarRoot.querySelectorAll('*')).filter(el => {
+                if (el.closest('.chat-item') || el.closest('li[data-testid^="chat-item-"]')) return false;
+                const t = (el.innerText || el.textContent || '').trim();
+                if (!t || t.length > 60) return false;
+                const hasSup = /supervised/i.test(t);
+                const hasMy = /my\s*chats/i.test(t);
+                return (hasSup && !hasMy) || (hasMy && !hasSup);
+            });
+
+            let closestHeader = null;
+            for (const h of allSectionNodes) {
+                const pos = h.compareDocumentPosition(item);
+                if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+                    closestHeader = h;
+                }
+            }
+
+            if (closestHeader) {
+                const t = (closestHeader.innerText || closestHeader.textContent || '').trim();
+                if (/supervised/i.test(t)) return true;
+                if (/my\s*chats/i.test(t)) return false;
+            }
+        } catch (e) {}
+
+        // 3. Layer Sibling Traversal (Mengecek elemen sebelumnya dalam satu list)
+        try {
+            let targetEl = item.closest('li[data-testid^="chat-item-"]') || item;
+            let p = targetEl.previousElementSibling;
+            while (p) {
+                const pt = (p.innerText || p.textContent || '').trim();
+                if (/supervised/i.test(pt) && !/my\s*chats/i.test(pt)) return true;
+                if (/my\s*chats/i.test(pt) && !/supervised/i.test(pt)) return false;
+                p = p.previousElementSibling;
+            }
+        } catch (e) {}
+
+        // 4. Fallback Karakteristik Teks LiveChat untuk Supervised / Transferred
+        const itemText = (item.innerText || item.textContent || '');
+        if (/transferred\s*[-–]\s*by/i.test(itemText)) {
+            return true;
+        }
+
+        // 5. Fallback: Atribut eksplisit pada container terdekat
+        if (item.closest('[data-testid*="supervised" i], [aria-label*="supervised" i], [class*="supervised" i]')) {
+            return true;
+        }
+
+        return false;
+    };
+
+    const isMyChatItem = (item) => {
+        if (!item) return false;
+        return !isSupervisedChatItem(item);
+    };
+
+    const getMyChatItems = () => {
+        return Array.from(document.querySelectorAll('.chat-item')).filter(item => isMyChatItem(item));
+    };
+
     // ============== DOM Helpers ==============
     const waitForElement = (selector, callback) => {
         const el = document.querySelector(selector);
@@ -365,8 +457,8 @@
         closeAlarmModal(true);
 
         const item = findItemByChatId(chatId);
-        const allItems = Array.from(document.querySelectorAll('.chat-item'));
-        const idx = item ? (allItems.indexOf(item) + 1) : '?';
+        const myChats = getMyChatItems();
+        const idx = item ? (myChats.indexOf(item) + 1) : '?';
         showToast(`⏳ Antrean Aktif: Otomatis lompat ke Chat #${idx} setelah Anda tekan Enter`, '#00c6ff', chatId, 4000);
 
         setTimeout(focusMessageInput, 80);
@@ -488,15 +580,16 @@
 
     const showAlarmCenterModal = (chatId) => {
         const item = findItemByChatId(chatId);
+        if (!item || isSupervisedChatItem(item)) return;
         const modal = ensureAlarmModalHost();
         modal.dataset.chatId = chatId;
 
-        const allItems = Array.from(document.querySelectorAll('.chat-item'));
-        const idx = item ? (allItems.indexOf(item) + 1) : 1;
+        const myChats = getMyChatItems();
+        const idx = item ? (myChats.indexOf(item) + 1) : 1;
         const locEl = modal.querySelector('.sla-modal-location');
         const custEl = modal.querySelector('.sla-modal-customer');
 
-        if (locEl) locEl.textContent = `Chat Urutan #${idx > 0 ? idx : '?'} di Sidebar`;
+        if (locEl) locEl.textContent = `Chat Urutan #${idx > 0 ? idx : '?'} di My Chats`;
         if (custEl) custEl.textContent = getCustomerNameFromItem(item);
 
         modal.classList.add('active');
@@ -721,6 +814,30 @@
         const chatId = getChatIdFromItem(item);
         if (!chatId) return;
 
+        // --- PENGECUALIAN SEKSI SUPERVISED (HANYA AKTIF DI MY CHATS) ---
+        if (isSupervisedChatItem(item)) {
+            if (unrepliedStartTimes.has(chatId)) {
+                unrepliedStartTimes.delete(chatId);
+                suppressedRedBlockIds.delete(chatId);
+                saveUnrepliedTimers();
+            }
+            item.classList.remove('mp-lined', 'rainbow', 'is-typing', 'blink-red', 'is-red', 'blink-yellow', 'bg-red-faded', 'bg-red-thick');
+            item.style.removeProperty('--leftbar-color');
+            item.style.removeProperty('--leftbar-rgb');
+            item.style.removeProperty('--leftbar-w');
+            removeCloseRedBlockButton(item);
+            removeWarningBadge(item);
+            delete item.dataset.redToastShown;
+            delete item.dataset.yellowToastShown;
+            delete item.dataset.redToastSuppressed;
+            delete item.dataset.yellowToastSuppressed;
+            delete item.dataset.alarm2m30sShown;
+            if (currentAlarmChatId === chatId) {
+                closeAlarmModal(false);
+            }
+            return;
+        }
+
         // --- DETEKSI REPLY AGENT YANG LEBIH AKURAT ---
         const hasReplyIcon = !!(
             item.querySelector('[data-testid="replied"]') ||
@@ -926,25 +1043,26 @@
     // DAN otomatis menutup hanya jika beneran sudah dibalas (timer dihapus)
     const updateLiveToastIndices = () => {
         const toasts = document.querySelectorAll('.my-toast[data-chat-id]');
-        const allItems = Array.from(document.querySelectorAll('.chat-item'));
+        const myChats = getMyChatItems();
 
         toasts.forEach(toast => {
             const chatId = toast.dataset.chatId;
             const item = findItemByChatId(chatId);
 
             // LOGIKA AUDIT: Toast hanya boleh hilang jika timer unreplied sudah dihapus (sudah dibalas/archive)
-            // atau jika chat item sudah tidak ada di sidebar
+            // atau jika chat item sudah tidak ada di sidebar, atau berada di Supervised
             const itemText = item ? (item.textContent || "").toLowerCase() : "";
             const isArchived = archTags.some(function (tag) { return itemText.indexOf(tag) !== -1; });
+            const isSupervised = item ? isSupervisedChatItem(item) : false;
             const hasTimer = unrepliedStartTimes.has(chatId);
             const isActive = (chatId === getActiveChatId()); // Cek apakah chat sedang dibuka
 
-            // LOGIKA: Tutup jika: Item hilang, Timer hilang, di-Archive, atau SEDANG DIBUKA (Seen)
-            const shouldClose = !item || !hasTimer || isArchived || isActive;
+            // LOGIKA: Tutup jika: Item hilang, Timer hilang, di-Archive, Supervised, atau SEDANG DIBUKA (Seen)
+            const shouldClose = !item || !hasTimer || isArchived || isActive || isSupervised;
 
             if (shouldClose) {
                 if (!toast.classList.contains('hide')) {
-                    console.log(`🧹 Menutup notifikasi (Navigasi/Selesai): ${chatId}`);
+                    console.log(`🧹 Menutup notifikasi (Navigasi/Selesai/Supervised): ${chatId}`);
 
                     // Bersihkan flag Shown agar bisa muncul lagi jika nanti pindah chat lagi
                     if (item) {
@@ -959,7 +1077,7 @@
                 // Update angka baris jika masih aktif (tetap muncul sampai dibalas)
                 const liveIdxSpan = toast.querySelector('.live-idx');
                 if (liveIdxSpan && item) {
-                    const currentIdx = allItems.indexOf(item) + 1;
+                    const currentIdx = myChats.indexOf(item) + 1;
                     if (currentIdx > 0) liveIdxSpan.textContent = currentIdx;
                 }
             }
@@ -1059,6 +1177,20 @@
     const applySingleChatStyling = (item) => {
         const chatId = getChatIdFromItem(item);
         if (!chatId) return;
+
+        // ====== PENGECUALIAN TOTAL UNTUK SUPERVISED ======
+        // Jika chat berada di seksi Supervised, matikan SEMUA fitur (tidak ada garis hijau/merah, tidak ada pulse, tidak ada timer)
+        const isSupervised = isSupervisedChatItem(item);
+        if (isSupervised) {
+            item.classList.remove('mp-lined', 'rainbow', 'is-typing', 'blink-red', 'is-red', 'blink-yellow', 'bg-red-faded', 'bg-red-thick');
+            item.style.removeProperty('--leftbar-color');
+            item.style.removeProperty('--leftbar-rgb');
+            item.style.removeProperty('--leftbar-w');
+            removeCloseRedBlockButton(item);
+            removeWarningBadge(item);
+            setRedBlinkState(item, false);
+            return; // Hentikan di sini agar tidak pernah ditambahkan .mp-lined (garis hijau/merah)
+        }
 
         const hasReplyIcon = !!item.querySelector('[data-testid="replied"]');
         const hasUnread = !!item.querySelector('[data-testid="unread-messages-count"]');
@@ -1165,8 +1297,9 @@
         const allItems = document.querySelectorAll('.chat-item');
         allItems.forEach(item => applySingleChatStyling(item));
 
-        // Tambahan: Notifikasi MODE SERIUS
-        const unreplied = Array.from(allItems).filter(item => {
+        // Tambahan: Notifikasi MODE SERIUS (Hanya hitung My chats)
+        const myChats = getMyChatItems();
+        const unreplied = myChats.filter(item => {
             const hasReplyIcon = item.querySelector('[data-testid="replied"]');
             const itemText = (item.textContent || "").toLowerCase();
             const isTransferred = itemText.includes('transferred');

@@ -96,6 +96,89 @@
         return null;
     };
 
+    // ====== Helper Deteksi Bagian Chat (My chats vs Supervised) ======
+    const isSupervisedChatItem = (item) => {
+        if (!item) return false;
+
+        const sidebarRoot = document.querySelector('.css-1cmlcj3') || document.body;
+
+        // 1. Layer Kontainer Induk (Ancestor Search)
+        let curr = item.parentElement;
+        while (curr && curr !== sidebarRoot && curr !== document.body) {
+            const testId = (curr.getAttribute('data-testid') || '').toLowerCase();
+            const aria = (curr.getAttribute('aria-label') || '').toLowerCase();
+            const cls = (curr.className || '').toString().toLowerCase();
+            if (testId.includes('supervised') || aria.includes('supervised') || cls.includes('supervised')) {
+                return true;
+            }
+            if (testId.includes('my-chat') || aria.includes('my chat') || cls.includes('my-chat')) {
+                return false;
+            }
+
+            const text = (curr.innerText || curr.textContent || '');
+            const hasSupervised = /supervised/i.test(text);
+            const hasMyChats = /my\s*chats/i.test(text);
+            if (hasSupervised && !hasMyChats) {
+                return true;
+            }
+            if (hasMyChats && !hasSupervised) {
+                return false;
+            }
+            curr = curr.parentElement;
+        }
+
+        // 2. Layer Preceding Header (Document Position)
+        try {
+            const allSectionNodes = Array.from(sidebarRoot.querySelectorAll('*')).filter(el => {
+                if (el.closest('.chat-item') || el.closest('li[data-testid^="chat-item-"]')) return false;
+                const t = (el.innerText || el.textContent || '').trim();
+                if (!t || t.length > 60) return false;
+                const hasSup = /supervised/i.test(t);
+                const hasMy = /my\s*chats/i.test(t);
+                return (hasSup && !hasMy) || (hasMy && !hasSup);
+            });
+
+            let closestHeader = null;
+            for (const h of allSectionNodes) {
+                const pos = h.compareDocumentPosition(item);
+                if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+                    closestHeader = h;
+                }
+            }
+
+            if (closestHeader) {
+                const t = (closestHeader.innerText || closestHeader.textContent || '').trim();
+                if (/supervised/i.test(t)) return true;
+                if (/my\s*chats/i.test(t)) return false;
+            }
+        } catch (e) {}
+
+        // 3. Layer Sibling Traversal (Mengecek elemen sebelumnya dalam satu list)
+        try {
+            let targetEl = item.closest('li[data-testid^="chat-item-"]') || item;
+            let p = targetEl.previousElementSibling;
+            while (p) {
+                const pt = (p.innerText || p.textContent || '').trim();
+                if (/supervised/i.test(pt) && !/my\s*chats/i.test(pt)) return true;
+                if (/my\s*chats/i.test(pt) && !/supervised/i.test(pt)) return false;
+                p = p.previousElementSibling;
+            }
+        } catch (e) {}
+
+        // 4. Fallback Karakteristik Teks LiveChat untuk Supervised / Transferred
+        const itemText = (item.innerText || item.textContent || '');
+        if (/transferred\s*[-–]\s*by/i.test(itemText)) {
+            return true;
+        }
+
+        // 5. Fallback: Atribut eksplisit pada container terdekat
+        if (item.closest('[data-testid*="supervised" i], [aria-label*="supervised" i], [class*="supervised" i]')) {
+            return true;
+        }
+
+        return false;
+    };
+
     // Cek apakah chat sudah archived — HANYA di sesi terbaru (setelah marker "Started")
     // Pattern dari LATOTO2: membaca chat yang paling terbaru saja
     const isChatArchived = (chatId) => {
@@ -138,11 +221,12 @@
         return false;
     };
 
-    // Dapatkan nomor urut chat di sidebar (1-based)
+    // Dapatkan nomor urut chat di sidebar (1-based, hanya My chats)
     const getChatRowNumber = (chatId) => {
         const allItems = document.querySelectorAll('.chat-item');
         let idx = 0;
         for (const item of allItems) {
+            if (isSupervisedChatItem(item)) continue;
             idx++;
             const id = getChatIdFromItem(item);
             if (id === chatId) return idx;
@@ -407,6 +491,16 @@
         const chatId = getActiveChatId();
         if (!chatId) return;
 
+        // PENGECUALIAN SUPERVISED: Jangan lacak durasi pengecekan pada chat Supervised
+        const activeItem = findItemByChatId(chatId);
+        if (activeItem && isSupervisedChatItem(activeItem)) {
+            if (checkStartTimes.has(chatId)) {
+                console.log(`🛡️ [${chatId}] Chat Supervised — Timer pengecekan dihentikan/dikecualikan`);
+                stopCheckTimer(chatId);
+            }
+            return;
+        }
+
         // Cek archived terlebih dahulu
         if (isChatArchived(chatId)) {
             if (checkStartTimes.has(chatId)) {
@@ -474,6 +568,19 @@
         allItems.forEach(item => {
             const id = getChatIdFromItem(item);
             if (id) activeIds.add(id);
+
+            // PENGECUALIAN SUPERVISED: Bersihkan badge & glow jika chat di Supervised
+            if (isSupervisedChatItem(item)) {
+                removeCheckBadge(item);
+                item.classList.remove('check-glow-2m', 'check-glow-3m', 'check-glow-5m');
+                delete item.dataset.checkToast2m;
+                delete item.dataset.checkToast3m;
+                delete item.dataset.checkToast5m;
+                if (id && checkStartTimes.has(id)) {
+                    checkStartTimes.delete(id);
+                    removeCheckToast(id);
+                }
+            }
         });
 
         // Evaluasi setiap timer aktif
@@ -481,6 +588,15 @@
         checkStartTimes.forEach((startTime, chatId) => {
             const elapsed = now - startTime;
             const item = findItemByChatId(chatId);
+
+            // PENGECUALIAN SUPERVISED
+            if (item && isSupervisedChatItem(item)) {
+                toDelete.push(chatId);
+                removeCheckBadge(item);
+                item.classList.remove('check-glow-2m', 'check-glow-3m', 'check-glow-5m');
+                removeCheckToast(chatId);
+                return;
+            }
 
             // --- ARCHIVE CHECK: Hapus timer jika chat sudah archived ---
             if (item) {

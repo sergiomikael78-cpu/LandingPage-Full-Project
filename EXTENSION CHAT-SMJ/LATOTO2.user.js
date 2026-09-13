@@ -119,10 +119,116 @@
         return filtered;
     }
 
+    // ╔═══════════════════════════════════════════════╗
+    // ║   DETEKSI SECTION: MY CHATS vs SUPERVISED     ║
+    // ╚═══════════════════════════════════════════════╝
+    function isSupervisedChatItem(item) {
+        if (!item) return false;
+        var sidebarRoot = document.querySelector('.css-1cmlcj3') || document.body;
+
+        // 1. Layer Kontainer Induk (Ancestor Search)
+        var curr = item.parentElement;
+        while (curr && curr !== sidebarRoot && curr !== document.body) {
+            var testId = (curr.getAttribute('data-testid') || '').toLowerCase();
+            var aria = (curr.getAttribute('aria-label') || '').toLowerCase();
+            var cls = (curr.className || '').toString().toLowerCase();
+            if (testId.indexOf('supervised') !== -1 || aria.indexOf('supervised') !== -1 || cls.indexOf('supervised') !== -1) {
+                return true;
+            }
+            if (testId.indexOf('my-chat') !== -1 || aria.indexOf('my chat') !== -1 || cls.indexOf('my-chat') !== -1) {
+                return false;
+            }
+
+            var text = (curr.innerText || curr.textContent || '');
+            var hasSupervised = /supervised/i.test(text);
+            var hasMyChats = /my\s*chats/i.test(text);
+            if (hasSupervised && !hasMyChats) return true;
+            if (hasMyChats && !hasSupervised) return false;
+            curr = curr.parentElement;
+        }
+
+        // 2. Layer Preceding Header (Document Position)
+        try {
+            var allSectionNodes = Array.from(sidebarRoot.querySelectorAll('*')).filter(function (el) {
+                if (el.closest('.chat-item') || el.closest('li[data-testid^="chat-item-"]')) return false;
+                var t = (el.innerText || el.textContent || '').trim();
+                if (!t || t.length > 60) return false;
+                var hasSup = /supervised/i.test(t);
+                var hasMy = /my\s*chats/i.test(t);
+                return (hasSup && !hasMy) || (hasMy && !hasSup);
+            });
+
+            var closestHeader = null;
+            for (var h = 0; h < allSectionNodes.length; h++) {
+                var pos = allSectionNodes[h].compareDocumentPosition(item);
+                if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+                    closestHeader = allSectionNodes[h];
+                }
+            }
+
+            if (closestHeader) {
+                var th = (closestHeader.innerText || closestHeader.textContent || '').trim();
+                if (/supervised/i.test(th)) return true;
+                if (/my\s*chats/i.test(th)) return false;
+            }
+        } catch (e) {}
+
+        // 3. Layer Sibling Traversal
+        try {
+            var targetEl = item.closest('li[data-testid^="chat-item-"]') || item;
+            var p = targetEl.previousElementSibling;
+            while (p) {
+                var pt = (p.innerText || p.textContent || '').trim();
+                if (/supervised/i.test(pt) && !/my\s*chats/i.test(pt)) return true;
+                if (/my\s*chats/i.test(pt) && !/supervised/i.test(pt)) return false;
+                p = p.previousElementSibling;
+            }
+        } catch (e) {}
+
+        // 4. Fallback Karakteristik Teks LiveChat
+        var itemText = (item.innerText || item.textContent || '');
+        if (/transferred\s*[-–]\s*by/i.test(itemText)) return true;
+
+        // 5. Fallback Atribut
+        if (item.closest('[data-testid*="supervised" i], [aria-label*="supervised" i], [class*="supervised" i]')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function isActiveChatSupervised() {
+        var selectedLi = document.querySelector('li[data-testid^="chat-item-"][aria-selected="true"], li[class*="selected"], li[class*="active"]');
+        if (selectedLi) {
+            var item = selectedLi.querySelector('.chat-item') || selectedLi;
+            return isSupervisedChatItem(item);
+        }
+        var activeItem = document.querySelector('.chat-item.active, .chat-item.selected, .chat-item[aria-selected="true"]');
+        if (activeItem) {
+            return isSupervisedChatItem(activeItem);
+        }
+        var m = location.pathname.match(/\/chats\/(?:[^/]+\/)?([^/]+)/i);
+        if (m && m[1]) {
+            var itemById = document.querySelector('li[data-testid="chat-item-' + m[1] + '"]');
+            if (itemById) {
+                return isSupervisedChatItem(itemById.querySelector('.chat-item') || itemById);
+            }
+        }
+        return false;
+    }
+
     function runHighlight() {
         if (document.hidden) return;
         var list = document.querySelector('[data-testid="messages-list"]');
         if (!list) return;
+
+        // PENGECUALIAN SUPERVISED: Jangan beri highlight spam jika di chat Supervised
+        if (isActiveChatSupervised()) {
+            var allBubbles = getBubbles(list);
+            for (var b = 0; b < allBubbles.length; b++) allBubbles[b].classList.remove("spam-detected-highlight");
+            return;
+        }
+
         var all = getBubbles(list);
         for (var i = 0; i < all.length; i++) all[i].classList.remove("spam-detected-highlight");
         var active = getMsgsAfter(list);
@@ -197,6 +303,13 @@
     function checkPre() {
         var input = document.querySelector('[contenteditable="true"]') || document.querySelector("textarea");
         if (!input) return;
+
+        // PENGECUALIAN SUPERVISED: Bebaskan input CS dari alert / blokir jika di Supervised
+        if (isActiveChatSupervised()) {
+            removeAlerts(input);
+            return;
+        }
+
         if (isCurrentInputSpam(input)) {
             applyAlerts(input);
         } else {
@@ -207,6 +320,9 @@
     // Global lock for Enter key and specific mouse clicks when spam is active
     window.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && !e.shiftKey) {
+            // PENGECUALIAN SUPERVISED: Jangan tahan kirim di chat Supervised
+            if (isActiveChatSupervised()) return;
+
             var input = document.querySelector('[contenteditable="true"]') || document.querySelector("textarea");
             // Check synchronously if spam right at the moment of 'Enter'
             if (input && (input.dataset.isSpam === "true" || isCurrentInputSpam(input))) {
@@ -220,6 +336,9 @@
     }, true); // use capture phase
 
     window.addEventListener("click", function (e) {
+        // PENGECUALIAN SUPERVISED: Jangan tahan kirim di chat Supervised
+        if (isActiveChatSupervised()) return;
+
         var el = e.target;
         var isSendClick = false;
         while (el && el !== document) {
